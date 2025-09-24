@@ -70,6 +70,7 @@
     echo "Dirección de Red: $red_ip<br>";
     echo "Dirección de Broadcast: $broadcast_ip<br>";
     echo "Rango: $primera_ip a $ultima_ip<br>";
+    echo "BINARIOCC: $ip_bin<br>";
     ?>
 </BODY>
 
