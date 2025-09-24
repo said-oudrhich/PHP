@@ -8,7 +8,13 @@
 <body>
   <?php
   $num = 168;
-  printf("El número %d en binario es %b<br/>", $num, $num);
+  $bin = "";
+
+  while ($num > 0) {
+    $bin = $num % 2 . $bin;
+    $num = (int)($num / 2);
+  }
+  echo "El número 168 en binario es $bin";
   ?>
 </body>
 
