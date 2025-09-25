@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ej1a</title>
 </head>
 
 <body>
     <p>Programa ej1a.php: definir un array y almacenar los 20 primeros números impares. Mostrar en la salida
         una tabla como la de la figura</p>
+    <hr>
     <?php
 
     $impares = array();

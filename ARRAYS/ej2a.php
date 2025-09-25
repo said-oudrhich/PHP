@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ej2a</title>
 </head>
 
 <body>
     <p>Programa ej2a.php: modificar el ejemplo anterior para que calcule la media de los valores que están en
         las posiciones pares y las posiciones impares.</p>
+    <hr>
     <?php
     $impares = array();
     $suma = 0;

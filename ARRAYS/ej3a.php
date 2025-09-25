@@ -4,24 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ej3a</title>
 </head>
 
 <body>
     <P>Programa ej3a.php definir un array y almacenar los 20 primeros números binarios. Mostrar en la salida
         una tabla como la de la figura</P>
-
+    <hr>
     <?php
     $binarios = array();
+    $octal = array();
 
     echo "<table border='1'>";
     echo "<tr><th>INDICE</th><th>BINARIO</th><th>OCTAL</th></tr>";
     for ($i = 0; $i < 20; $i++) {
         $binarios[$i] = decbin($i);
+        $octal[$i] = decoct($i);
         echo "<tr>
             <td>$i</td>
             <td>$binarios[$i]</td>
-            <td>" . decoct($i) . "</td>
+            <td>$octal[$i]</td>
         </tr>";
     }
     echo "</table>";
