@@ -10,7 +10,7 @@
 <body>
     <h2>Operaciones Ficheros</h2>
 
-    <form action="fichero5.php" method="post">
+    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
         <label for="fichero">Fichero (Path/nombre):</label>
         <input type="text" name="fichero" id="fichero" required />
         <br /><br />
@@ -42,7 +42,9 @@
         <input type="submit" value="Enviar" />
         <input type="reset" value="Borrar" />
     </form>
+
     <?php
+
     function limpiar($dato)
     {
         return htmlspecialchars(stripslashes(trim($dato)));

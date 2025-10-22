@@ -9,7 +9,7 @@
 
 <body>
     <h1>Operaciones Ficheros</h1>
-    <form action="" method="post">
+    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
         <label for="fichero">Fichero (Path/nombre):</label>
         <input type="text" name="fichero" id="fichero" required />
         <br /><br />
