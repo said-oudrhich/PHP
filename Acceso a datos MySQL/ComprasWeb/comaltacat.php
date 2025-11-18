@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
     <h2>Alta de Categorías</h2>
-    <form method="POST" action="">
+    <form method="POST" action="comaltacat.php">
         <label>Nombre de la categoría:</label><br>
         <input type="text" name="nombre" required>
         <br><br>

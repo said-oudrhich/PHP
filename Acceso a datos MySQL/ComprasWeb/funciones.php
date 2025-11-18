@@ -1,13 +1,14 @@
 <?php
+
+// Limpia los datos de entrada para evitar inyecciones y otros problemas
 function limpiar($dato)
 {
     return htmlspecialchars(stripslashes(trim($dato)));
 }
 
 /*********************************************************************************************************************************************/
-/*
 
-*/
+// Genera un nuevo ID para una categoría
 function generarNuevoId_categoria($conn)
 {
     $sql = "SELECT id_categoria FROM categoria ORDER BY id_categoria DESC LIMIT 1";
@@ -24,6 +25,7 @@ function generarNuevoId_categoria($conn)
     return "C-" . str_pad($num, 3, "0", STR_PAD_LEFT);
 }
 
+// Inserta una nueva categoría en la base de datos
 function insertarCategoria($conn, $id, $nombre)
 {
     $sql = "INSERT INTO categoria (id_categoria, nombre) VALUES (:id, :nombre)";
@@ -35,13 +37,8 @@ function insertarCategoria($conn, $id, $nombre)
 }
 
 /*********************************************************************************************************************************************/
-/*
-Alta de Productos (comaltapro.php): dar de alta productos. Para seleccionar la categoría del
-producto, se utilizará una lista de valores con los nombres de las categorías. El id_producto
-será un campo con el formato Pxxxx donde xxxx será un número secuencial que comienza en
-1 completándose con 0 hasta completar el formato (este campo será calculado desde PHP).
-*/
 
+// Genera un nuevo ID para un producto
 function generarNuevoId_producto($conn)
 {
     $sql = "SELECT id_producto FROM producto ORDER BY id_producto DESC LIMIT 1";
@@ -55,15 +52,32 @@ function generarNuevoId_producto($conn)
         $num = 1;
     }
 
-    return "P-" . str_pad($num, 4, "0", STR_PAD_LEFT);
+    return "P" . str_pad($num, 4, "0", STR_PAD_LEFT);
 }
 
-function insertarProducto($conn, $id, $nombre)
+// Inserta un nuevo producto en la base de datos
+function insertarProducto($conn, $id, $nombre, $id_categoria, $precio)
 {
-    $sql = "INSERT INTO categoria (id_producto, nombre) VALUES (:id, :nombre)";
+    $sql = "INSERT INTO producto (id_producto, nombre, precio, id_categoria) VALUES (:id, :nombre, :precio, :id_categoria)";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
         ":id" => $id,
-        ":nombre" => $nombre
+        ":nombre" => $nombre,
+        ":precio" => $precio,
+        ":id_categoria" => $id_categoria
     ]);
 }
+
+
+// Comprueba si una categoría existe dado la id de categoría
+function comprobarCategoria($conn, $id_categoria)
+{
+    $sql = "SELECT COUNT(*) FROM categoria WHERE id_categoria = :id_categoria";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([
+        ":id_categoria" => $id_categoria
+    ]);
+    return $stmt->fetchColumn() > 0;
+}
+
+/*********************************************************************************************************************************************/
