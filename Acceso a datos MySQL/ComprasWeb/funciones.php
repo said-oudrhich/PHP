@@ -56,7 +56,7 @@ function generarNuevoId_producto($conn)
 }
 
 // Inserta un nuevo producto en la base de datos
-function insertarProducto($conn, $id, $nombre, $id_categoria, $precio)
+function insertarProducto($conn, $id, $nombre, $precio, $id_categoria)
 {
     $sql = "INSERT INTO producto (id_producto, nombre, precio, id_categoria) VALUES (:id, :nombre, :precio, :id_categoria)";
     $stmt = $conn->prepare($sql);
@@ -69,15 +69,40 @@ function insertarProducto($conn, $id, $nombre, $id_categoria, $precio)
 }
 
 
-// Comprueba si una categoría existe dado la id de categoría
-function comprobarCategoria($conn, $id_categoria)
+// Obtiene todas las categorías para el desplegable
+function desplegableCategoria($conn)
 {
-    $sql = "SELECT COUNT(*) FROM categoria WHERE id_categoria = :id_categoria";
+    $sql = "SELECT id_categoria, nombre FROM categoria";
     $stmt = $conn->prepare($sql);
-    $stmt->execute([
-        ":id_categoria" => $id_categoria
-    ]);
-    return $stmt->fetchColumn() > 0;
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /*********************************************************************************************************************************************/
+
+
+function insertarAlmacen($conn, $num_almacen, $localidad)
+{
+    $sql = "INSERT INTO almacen (num_almacen, localidad) VALUES (:num_almacen, :localidad)";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([
+        ":num_almacen" => $num_almacen,
+        ":localidad" => $localidad
+    ]);
+}
+
+// Genera un nuevo ID para un almacén
+function generarNuevoId_almacen($conn)
+{
+    $sql = "SELECT num_almacen FROM almacen ORDER BY num_almacen DESC LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+
+    $ultimo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($ultimo) {
+        return $ultimo["num_almacen"] + 1;
+    } else {
+        return 1; // si no hay registros
+    }
+}

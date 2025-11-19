@@ -5,15 +5,16 @@ require("funciones.php");
 $mensaje = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre = limpiar($_POST["nombre"]);
+
+    $localidad = limpiar($_POST["localidad"]);
 
     try {
         $conn = conectarBD();
 
-        $nuevo_id = generarNuevoId_categoria($conn);
-        insertarCategoria($conn, $nuevo_id, $nombre);
+        $num_almacen = generarNuevoId_almacen($conn);
+        insertarAlmacen($conn, $num_almacen, $localidad);
 
-        $mensaje = "Categoría '$nombre' creada con ID $nuevo_id.";
+        $mensaje = "Almacén '$localidad' creado con ID $num_almacen.";
     } catch (PDOException $e) {
         $mensaje = "Error: " . $e->getMessage();
     } finally {
@@ -22,19 +23,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
-    <title>Alta de Categorías</title>
+    <title>Alta de Almacenes</title>
 </head>
 
 <body>
-    <h2>Alta de Categorías</h2>
-    <form method="POST" action="comaltacat.php">
-        <label>Nombre de la categoría:</label><br>
-        <input type="text" name="nombre" required>
+    <h2>Alta de Almacenes</h2>
+    <form method="POST" action="comaltaalm.php">
+        <label>Nombre del almacén:</label><br>
+        <input type="text" name="localidad" required>
         <br><br>
         <input type="submit" value="Dar de alta">
     </form>

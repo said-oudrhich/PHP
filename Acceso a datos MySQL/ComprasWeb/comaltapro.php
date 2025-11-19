@@ -1,8 +1,12 @@
 <?php
-include("conexion.php");
-include("funciones.php");
+require("conexion.php");
+require("funciones.php");
 
 $mensaje = "";
+$conn = conectarBD();
+
+// Cargamos categorías para el desplegable
+$categorias = desplegableCategoria($conn);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = limpiar($_POST["nombre"]);
@@ -10,18 +14,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $precio = limpiar($_POST["precio"]);
 
     try {
-        $conn = conectarBD();
+        // Generamos el nuevo ID y insertamos el producto
+        $nuevo_id = generarNuevoId_producto($conn);
+        insertarProducto($conn, $nuevo_id, $nombre, $precio, $id_categoria);
 
-        // Comprobamos la categoría
-        if (!comprobarCategoria($conn, $id_categoria)) {
-            $mensaje = "Error: La categoria con ID $id_categoria no existe.";
-        } else {
-            // Generamos el nuevo ID y insertamos el producto
-            $nuevo_id = generarNuevoId_producto($conn);
-            insertarProducto($conn, $nuevo_id, $nombre, $id_categoria, $precio);
-
-            $mensaje = "Producto '$nombre' creado con ID $nuevo_id.";
-        }
+        $mensaje = "Producto '$nombre' creado con ID $nuevo_id.";
     } catch (PDOException $e) {
         $mensaje = "Error: " . $e->getMessage();
     } finally {
@@ -30,7 +27,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-/*********************************************************************************************************************************************/
 
 <!DOCTYPE html>
 <html lang="es">
@@ -50,8 +46,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="number" name="precio" required>
         <br><br>
         <label>ID Categoria del producto:</label><br>
-        <input type="text" name="id_categoria" required>
-        <br><br>
+        <select name="id_categoria" required>
+            <?php // Rellenamos el desplegable con las categorías
+            foreach ($categorias as $categoria) {
+                echo "<option value='" . $categoria['id_categoria'] . "'>" . $categoria['nombre'] . "</option>";
+            }
+            ?>
+        </select><br><br>
         <input type="submit" value="Dar de alta">
     </form>
 
