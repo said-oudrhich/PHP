@@ -1,5 +1,6 @@
 <?php
 require("funciones.php");
+require("errores.php");
 
 $mensaje = "";
 $conexion = conectarBD();
@@ -16,10 +17,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cod_dpto = limpiar($_POST['cod_dpto']);
 
     try {
-        insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario, $cod_dpto);
+        insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario);
+        insertarEmpleadoDepartamento($conexion, $dni, $cod_dpto);
         $mensaje = "Empleado '$nombre $apellidos' dado de alta correctamente.";
-    } catch (PDOException $e) {
-        $mensaje = "Error en la base de datos: " . $e->getMessage();
+    } catch (Exception $e) {
+        $mensaje = mostrarError($e);
     }
 }
 

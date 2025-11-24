@@ -1,5 +1,6 @@
 <?php
 require("funciones.php");
+require("errores.php");
 
 $mensaje = "";
 
@@ -7,28 +8,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = limpiar($_POST['nombre']);
 
     try {
+
         $conexion = conectarBD();
         // Lanzar excepciones ante errores
         $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
         // Iniciar transacción
         $conexion->beginTransaction();
 
-        if (!departamentoExiste($conexion, $nombre)) {
-            $cod_dpto = generarNuevoCod_dpto($conexion);
+        $cod_dpto = generarNuevoCod_dpto($conexion);
+        insertarDepartamento($conexion, $nombre, $cod_dpto);
 
-            insertarDepartamento($conexion, $nombre, $cod_dpto);
+        $conexion->commit();
 
-            $conexion->commit();
-
-            $mensaje = "Departamento \"$nombre\" insertado correctamente con código: \"$cod_dpto\"";
-        } else {
-            $conexion->rollBack();
-            $mensaje = "El departamento \"$nombre\" ya existe.";
-        }
+        $mensaje = "Departamento \"$nombre\" insertado correctamente con código: \"$cod_dpto\"";
     } catch (Exception $e) {
         $conexion->rollBack();
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e);
     } finally {
         $conexion = null;
     }

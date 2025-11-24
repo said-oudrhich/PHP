@@ -1,12 +1,12 @@
 <?php
 
-/* Conexión a bd empleados1n - mysql PDO */
+/* Conexión a bd empleados - mysql PDO */
 function conectarBD()
 {
     $servername = "localhost";
     $username = "root";
     $password = "rootroot";
-    $dbname = "empleados1n";
+    $dbname = "empleados";
 
     try {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
@@ -48,24 +48,13 @@ function generarNuevoCod_dpto($conexion)
     $stmt->execute();
     $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($resultado && $resultado['max_cod']) {
+    if ($resultado['max_cod']) {
         $num = intval(substr($resultado['max_cod'], 1)) + 1;
     } else {
         $num = 1;
     }
 
     return "D" . str_pad($num, 3, "0", STR_PAD_LEFT);
-}
-
-// Verificar si el departamento ya existe devueklve true si existe, false si no existe
-function departamentoExiste($conexion, $nombre)
-{
-    $sql = "SELECT COUNT(*) FROM departamento WHERE nombre_dpto = :nombre";
-    $stmt = $conexion->prepare($sql);
-    $stmt->bindParam(":nombre", $nombre);
-    $stmt->execute();
-
-    return $stmt->fetchColumn() > 0;
 }
 
 /*********************************************************************************************************************************************/
@@ -80,18 +69,40 @@ function obtenerDepartamentos($conexion)
     return $departamentos;
 }
 
-function insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario, $cod_dpto)
+function insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario)
 {
-    $sql = "INSERT INTO empleado (dni, nombre, apellidos, fecha_nac, salario, cod_dpto) 
-                VALUES (:dni, :nombre, :apellidos, :fecha_nac, :salario, :cod_dpto)";
+    // Comprobar si ya existe
+    $stmt = $conexion->prepare("SELECT COUNT(*) FROM empleado WHERE dni = :dni");
+    $stmt->bindParam(":dni", $dni);
+    $stmt->execute();
+    if ($stmt->fetchColumn() > 0) {
+        echo "El empleado ya existe.";
+        return;
+    }
+
+    $sql = "INSERT INTO empleado (dni, nombre, apellidos, fecha_nac, salario) 
+            VALUES (:dni, :nombre, :apellidos, :fecha_nac, :salario)";
     $stmt = $conexion->prepare($sql);
 
     $stmt->bindParam(":dni", $dni);
     $stmt->bindParam(":nombre", $nombre);
     $stmt->bindParam(":apellidos", $apellidos);
+    $fecha_nac = date('Y-m-d', strtotime($fecha_nac));
     $stmt->bindParam(":fecha_nac", $fecha_nac);
     $stmt->bindParam(":salario", $salario);
+    $stmt->execute();
+}
+
+function insertarEmpleadoDepartamento($conexion, $dni, $cod_dpto)
+{
+    $sql = "INSERT INTO emple_depart (dni, cod_dpto, fecha_ini, fecha_fin) 
+                VALUES (:dni, :cod_dpto, :fecha_ini, NULL)";
+    $stmt = $conexion->prepare($sql);
+
+    $stmt->bindParam(":dni", $dni);
     $stmt->bindParam(":cod_dpto", $cod_dpto);
+    $fecha_ini = date('Y-m-d');
+    $stmt->bindParam(":fecha_ini", $fecha_ini);
     $stmt->execute();
 }
 
