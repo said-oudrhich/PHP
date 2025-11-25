@@ -22,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         if (empleadoExiste($conexion, $dni)) {
             $mensaje = "El empleado $nombre $apellidos ya existe.";
+            $conexion->rollBack();
         } else {
             insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario);
             insertarEmpleadoDepartamento($conexion, $dni, $cod_dpto);
@@ -30,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } catch (Exception $e) {
         $conexion->rollBack();
-        $mensaje = mostrarError($e);
+        $mensaje = mostrarError($e, ['tipo' => 'empleado', 'valor' => $dni, 'columna' => 'dni']);
     } finally {
         $conexion = null;
     }

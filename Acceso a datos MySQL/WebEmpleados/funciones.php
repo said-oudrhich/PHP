@@ -26,6 +26,10 @@ function limpiar($dato)
 }
 
 /*********************************************************************************************************************************************/
+// empaltadpto.php
+/*Programar un formulario empaltadpto.html/empaltadpto.php que permita dar de alta 
+departamentos. El código del departamento tendrá el formato DxxxN (‘D001’, ‘D002’ …) y se 
+obtendrá automáticamente. */
 
 // Insertar nuevo departamento en la base de datos
 function insertarDepartamento($conexion, $nombre, $cod_dpto)
@@ -58,6 +62,10 @@ function generarNuevoCod_dpto($conexion)
 }
 
 /*********************************************************************************************************************************************/
+// empaltaemp.php
+/*Realizar un programa en php empaltaemp.php que permita dar de alta un empleado en la 
+empresa. Para seleccionar el departamento, al que se asignará al empleado inicialmente, se 
+utilizará una lista de valores con los nombres de los departamentos de la empresa. */
 
 function obtenerDepartamentos($conexion)
 {
@@ -107,3 +115,43 @@ function insertarEmpleadoDepartamento($conexion, $dni, $cod_dpto)
 }
 
 /*********************************************************************************************************************************************/
+// empcambiodpto.php
+
+/*Realizar un programa en php empcambiodpto.php que permita seleccionar el DNI de un 
+empleado de una lista desplegable y permita asignarlo a un nuevo departamento. Este nuevo 
+departamento se obtendrá también de un desplegable.  */
+
+function obtenerEmpleados($conexion)
+{
+    $sql = "SELECT dni, nombre, apellidos FROM empleado ORDER BY apellidos, nombre";
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute();
+
+    $empleados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $empleados;
+}
+
+// Obtener los depertamentos ya esta creado arriba
+
+function cambiarDepartamentoEmpleado($conexion, $dni, $cod_dpto)
+{
+    // Finalizar el departamento actual del empleado
+    $sqlFin = "UPDATE emple_depart 
+               SET fecha_fin = :fecha_fin 
+               WHERE dni = :dni AND fecha_fin IS NULL";
+    $stmtFin = $conexion->prepare($sqlFin);
+    $fecha_fin = date('Y-m-d');
+    $stmtFin->bindParam(":fecha_fin", $fecha_fin);
+    $stmtFin->bindParam(":dni", $dni);
+    $stmtFin->execute();
+
+    // Asignar el nuevo departamento al empleado
+    $sqlNuevo = "INSERT INTO emple_depart (dni, cod_dpto, fecha_ini, fecha_fin) 
+                 VALUES (:dni, :cod_dpto, :fecha_ini, NULL)";
+    $stmtNuevo = $conexion->prepare($sqlNuevo);
+    $fecha_ini = date('Y-m-d');
+    $stmtNuevo->bindParam(":dni", $dni);
+    $stmtNuevo->bindParam(":cod_dpto", $cod_dpto);
+    $stmtNuevo->bindParam(":fecha_ini", $fecha_ini);
+    $stmtNuevo->execute();
+}

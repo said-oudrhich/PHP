@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mensaje = "Departamento \"$nombre\" insertado correctamente con código: \"$cod_dpto\"";
     } catch (Exception $e) {
         $conexion->rollBack();
-        $mensaje = mostrarError($e);
+        $mensaje = mostrarError($e, ['tipo' => 'departamento', 'valor' => $cod_dpto, 'columna' => 'cod_dpto']);
     } finally {
         $conexion = null;
     }
