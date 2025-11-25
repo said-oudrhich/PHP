@@ -69,17 +69,17 @@ function obtenerDepartamentos($conexion)
     return $departamentos;
 }
 
-function insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario)
+function empleadoExiste($conexion, $dni)
 {
-    // Comprobar si ya existe
     $stmt = $conexion->prepare("SELECT COUNT(*) FROM empleado WHERE dni = :dni");
     $stmt->bindParam(":dni", $dni);
     $stmt->execute();
-    if ($stmt->fetchColumn() > 0) {
-        echo "El empleado ya existe.";
-        return;
-    }
 
+    return $stmt->fetchColumn() > 0;
+}
+
+function insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario)
+{
     $sql = "INSERT INTO empleado (dni, nombre, apellidos, fecha_nac, salario) 
             VALUES (:dni, :nombre, :apellidos, :fecha_nac, :salario)";
     $stmt = $conexion->prepare($sql);

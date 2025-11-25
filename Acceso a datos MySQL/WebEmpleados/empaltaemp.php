@@ -16,12 +16,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $salario = limpiar($_POST['salario']);
     $cod_dpto = limpiar($_POST['cod_dpto']);
 
+    $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conexion->beginTransaction();
+
     try {
-        insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario);
-        insertarEmpleadoDepartamento($conexion, $dni, $cod_dpto);
-        $mensaje = "Empleado '$nombre $apellidos' dado de alta correctamente.";
+        if (empleadoExiste($conexion, $dni)) {
+            $mensaje = "El empleado $nombre $apellidos ya existe.";
+        } else {
+            insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario);
+            insertarEmpleadoDepartamento($conexion, $dni, $cod_dpto);
+            $mensaje = "Empleado '$nombre $apellidos' dado de alta correctamente.";
+            $conexion->commit();
+        }
     } catch (Exception $e) {
+        $conexion->rollBack();
         $mensaje = mostrarError($e);
+    } finally {
+        $conexion = null;
     }
 }
 
