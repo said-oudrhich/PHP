@@ -67,6 +67,7 @@ function generarNuevoCod_dpto($conexion)
 empresa. Para seleccionar el departamento, al que se asignará al empleado inicialmente, se 
 utilizará una lista de valores con los nombres de los departamentos de la empresa. */
 
+// Obtener la lista de departamentos
 function obtenerDepartamentos($conexion)
 {
     $sql = "SELECT cod_dpto, nombre_dpto FROM departamento ORDER BY nombre_dpto";
@@ -77,6 +78,7 @@ function obtenerDepartamentos($conexion)
     return $departamentos;
 }
 
+// Verificar si un empleado existe por su DNI
 function empleadoExiste($conexion, $dni)
 {
     $stmt = $conexion->prepare("SELECT COUNT(*) FROM empleado WHERE dni = :dni");
@@ -86,6 +88,7 @@ function empleadoExiste($conexion, $dni)
     return $stmt->fetchColumn() > 0;
 }
 
+// Insertar nuevo empleado
 function insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $salario)
 {
     $sql = "INSERT INTO empleado (dni, nombre, apellidos, fecha_nac, salario) 
@@ -101,6 +104,7 @@ function insertarEmpleado($conexion, $dni, $nombre, $apellidos, $fecha_nac, $sal
     $stmt->execute();
 }
 
+// Insertar asignación de empleado a departamento
 function insertarEmpleadoDepartamento($conexion, $dni, $cod_dpto)
 {
     $sql = "INSERT INTO emple_depart (dni, cod_dpto, fecha_ini, fecha_fin) 
@@ -116,11 +120,11 @@ function insertarEmpleadoDepartamento($conexion, $dni, $cod_dpto)
 
 /*********************************************************************************************************************************************/
 // empcambiodpto.php
-
 /*Realizar un programa en php empcambiodpto.php que permita seleccionar el DNI de un 
 empleado de una lista desplegable y permita asignarlo a un nuevo departamento. Este nuevo 
 departamento se obtendrá también de un desplegable.  */
 
+// Obtener la lista de empleados
 function obtenerEmpleados($conexion)
 {
     $sql = "SELECT dni, nombre, apellidos FROM empleado ORDER BY apellidos, nombre";
@@ -154,4 +158,47 @@ function cambiarDepartamentoEmpleado($conexion, $dni, $cod_dpto)
     $stmtNuevo->bindParam(":cod_dpto", $cod_dpto);
     $stmtNuevo->bindParam(":fecha_ini", $fecha_ini);
     $stmtNuevo->execute();
+}
+
+/*********************************************************************************************************************************************/
+// emplistadpto.php
+/*Realizar un programa en php emplistadpto.php que permita seleccionar el nombre de un 
+departamento y muestre por pantalla los empleados que trabajan actualmente en ese 
+departamento. */
+
+// Obtener empleados por departamento
+function obtenerEmpleadosPorDepartamento($conexion, $cod_dpto)
+{
+    $sql = "SELECT e.dni, e.nombre, e.apellidos 
+            FROM empleado e, emple_depart ed
+            WHERE ed.cod_dpto = :cod_dpto AND ed.fecha_fin IS null AND ed.dni = e.dni 
+            ORDER BY e.apellidos, e.nombre";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(":cod_dpto", $cod_dpto);
+    $stmt->execute();
+
+    $empleados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $empleados;
+}
+
+
+/*********************************************************************************************************************************************/
+// emphistdpto.php
+/*Realizar un programa en php emphistdpto.php que permita seleccionar el nombre de un 
+departamento y muestre por pantalla el histórico de los empleados que han pasado por el 
+departamento excepto los asignados actualmente a ese departamento. */
+
+// Obtener histórico de empleados por departamento
+function obtenerHistoricoEmpleadosPorDepartamento($conexion, $cod_dpto)
+{
+    $sql = "SELECT e.dni, e.nombre, e.apellidos, ed.fecha_ini, ed.fecha_fin 
+            FROM empleado e, emple_depart ed
+            WHERE ed.cod_dpto = :cod_dpto AND ed.fecha_fin IS NOT null AND ed.dni = e.dni 
+            ORDER BY ed.fecha_ini DESC, e.apellidos, e.nombre";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(":cod_dpto", $cod_dpto);
+    $stmt->execute();
+
+    $empleados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $empleados;
 }
