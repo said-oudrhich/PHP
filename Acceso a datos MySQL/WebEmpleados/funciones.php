@@ -202,3 +202,25 @@ function obtenerHistoricoEmpleadosPorDepartamento($conexion, $cod_dpto)
     $empleados = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $empleados;
 }
+
+
+/*********************************************************************************************************************************************/
+// empsalarioemp.php
+/*Realizar un programa en php empsalarioemp.php que permita seleccionar un empleado para 
+modificar su salario actual. Por pantalla, se introducirá el porcentaje de cambio del salario 
+(podrá ser + o -) y se incrementará/decrementará el salario del empleado en dicho porcentaje. */
+
+// Obtener salario actual de un empleado por su DNI
+function obtenerEmpleadoConSalario($conexion, $dni)
+{
+    $stmt = $conexion->prepare("SELECT salario FROM empleado WHERE dni = :dni");
+    $stmt->execute([':dni' => $dni]);
+    $empleado = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $empleado;
+}
+
+function actualizarSalarioEmpleado($conexion, $dni, $nuevo_salario)
+{
+    $stmt = $conexion->prepare("UPDATE empleado SET salario = :salario WHERE dni = :dni");
+    $stmt->execute([':salario' => $nuevo_salario, ':dni' => $dni]);
+}
