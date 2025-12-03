@@ -3,8 +3,8 @@ a un almacén. Se seleccionarán los nombres de los productos y los números de 
 desde listas desplegables. El usuario introducirá la cantidad del producto a aprovisionar.
 
 <?php
-require("conexion.php");
-require("funciones.php");
+require("../conexion.php");
+require("../funciones.php");
 $mensaje = "";
 $conn = conectarBD();
 // Cargamos productos y almacenes para los desplegables

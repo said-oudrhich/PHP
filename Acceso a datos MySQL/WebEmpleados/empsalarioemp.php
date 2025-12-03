@@ -1,6 +1,6 @@
 <?php
-require_once("funciones.php");
-require_once("errores.php");
+require("funciones.php");
+require("errores.php");
 
 $mensaje = "";
 $conexion = null;

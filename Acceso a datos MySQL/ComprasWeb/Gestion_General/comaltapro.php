@@ -1,6 +1,6 @@
 <?php
-require("conexion.php");
-require("funciones.php");
+require("../conexion.php");
+require("../funciones.php");
 
 $mensaje = "";
 $conn = conectarBD();
