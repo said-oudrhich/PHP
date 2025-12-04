@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $mensaje = "Categoría '$nombre' creada con ID $nuevo_id.";
     } catch (PDOException $e) {
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e, "Alta de Categoría");
     } finally {
         $conn = null;
     }

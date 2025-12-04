@@ -19,11 +19,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $mensaje = "Nombre de usuario o clave incorrectos.";
         }
     } catch (PDOException $e) {
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e, "Login de Cliente");
     } finally {
-        if ($conexion) {
-            $conexion = null;
-        }
+        $conexion = null;
     }
 }
 

@@ -1,4 +1,6 @@
 <?php
+require("errores.php");
+
 /* Conexión a bd comprasweb - mysql PDO */
 function conectarBD()
 {
@@ -12,6 +14,6 @@ function conectarBD()
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $conn;
     } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
+        echo mostrarError($e, "Conexión");
     }
 }

@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $mensaje = "Producto '$nombre' creado con ID $nuevo_id.";
     } catch (PDOException $e) {
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e, "Alta de Producto");
     } finally {
         $conn = null; // Cerramos la conexión
     }

@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $mensaje = "Almacén '$localidad' creado con ID $num_almacen.";
     } catch (PDOException $e) {
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e, "Alta de Almacén");
     } finally {
         $conn = null;
     }

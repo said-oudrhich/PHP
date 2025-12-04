@@ -147,7 +147,6 @@ function insertarAprovisionamiento($conn, $num_almacen, $id_producto, $cantidad)
 
 function registrarCliente($conn, $nif, $nombre, $apellido, $cp, $direccion, $ciudad, $clave)
 {
-    $clave = strrev($apellido);
 
     $sql = "INSERT INTO cliente (nif, nombre, apellido, cp, direccion, ciudad, clave) 
             VALUES (:nif, :nombre, :apellido, :cp, :direccion, :ciudad, :clave)";
@@ -164,6 +163,11 @@ function registrarCliente($conn, $nif, $nombre, $apellido, $cp, $direccion, $ciu
     $stmt->execute();
 }
 
+
+function generarClave($apellido)
+{
+    return strrev($apellido);
+}
 function verificarCliente($conn, $nombre, $clave)
 {
     $sql = "SELECT * FROM cliente WHERE nombre = :nombre AND clave = :clave";
@@ -202,4 +206,63 @@ function obtenerProductosEnAlmacen($conn, $num_almacen)
     $stmt->bindParam(":num_almacen", $num_almacen);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+/*********************************************************************************************************************************************/
+
+function desplegableClientes($conn)
+{
+    $sql = "SELECT nif, nombre FROM cliente";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function obtenerComprasPorClienteYFecha($conn, $nif, $fecha_desde, $fecha_hasta)
+{
+    $sql = "SELECT p.nombre
+            FROM compra c, producto p
+            WHERE c.id_producto = p.id_producto 
+              AND c.nif = :nif 
+              AND c.fecha_compra BETWEEN :fecha_desde AND :fecha_hasta";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(":nif", $nif);
+    $stmt->bindParam(":fecha_desde", $fecha_desde);
+    $stmt->bindParam(":fecha_hasta", $fecha_hasta);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/*********************************************************************************************************************************************/
+function comprobarNif($nif)
+{
+    // No puede estar vacío y debe tener 9 caracteres
+    if (empty($nif) || strlen($nif) !== 9) {
+        return false;
+    }
+
+    $numbers = substr($nif, 0, 8);
+    $letter = substr($nif, 8, 1);
+
+    // Los primeros 8 deben ser dígitos
+    if (!ctype_digit($numbers)) {
+        return false;
+    }
+
+    // La última debe ser letra (mayúscula o minúscula)
+    if (!ctype_alpha($letter)) {
+        return false;
+    }
+
+    return true;
+}
+
+function nifExiste($conexion, $nif)
+{
+    $sql = "SELECT COUNT(*) FROM cliente WHERE nif = :nif";
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute([':nif' => $nif]);
+    return $stmt->fetchColumn() > 0;
 }

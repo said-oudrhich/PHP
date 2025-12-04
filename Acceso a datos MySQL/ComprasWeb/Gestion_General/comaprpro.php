@@ -5,6 +5,7 @@ desde listas desplegables. El usuario introducirá la cantidad del producto a ap
 <?php
 require("../conexion.php");
 require("../funciones.php");
+
 $mensaje = "";
 $conn = conectarBD();
 // Cargamos productos y almacenes para los desplegables
@@ -19,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         insertarAprovisionamiento($conn, $num_almacen, $id_producto, $cantidad);
         $mensaje = "Aprovisionamiento realizado: $cantidad unidades del producto '$id_producto' al almacén '$num_almacen'.";
     } catch (PDOException $e) {
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e, "Aprovisionamiento");
     } finally {
         $conn = null; // Cerramos la conexión
     }

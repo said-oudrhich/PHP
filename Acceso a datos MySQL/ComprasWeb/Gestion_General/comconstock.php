@@ -1,6 +1,7 @@
 <?php
 require("../conexion.php");
 require("../funciones.php");
+
 $mensaje = "";
 
 $conn = conectarBD();
@@ -16,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $mensaje = "Stock del producto '$id_producto':<br>";
         }
     } catch (PDOException $e) {
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e, "Consulta de Stock");
     } finally {
         $conn = null;
     }

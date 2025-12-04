@@ -16,13 +16,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         // Obtenemos los productos del almacén seleccionado
         $productos = obtenerProductosEnAlmacen($conn, $num_almacen);
-        if (empty($productos)) {
-            $mensaje = "No hay productos en el almacén seleccionado.";
-        } else {
+        if (!empty($productos)) {
             $mensaje = "Consulta realizada correctamente.";
+        } else {
+            $mensaje = "No hay productos en el almacén seleccionado.";
         }
     } catch (PDOException $e) {
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e, "Consulta de Almacén");
     } finally {
         $conn = null;
     }
@@ -60,8 +60,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<li>" . htmlspecialchars($producto['nombre']) . " - Cantidad: " . htmlspecialchars($producto['cantidad']) . "</li>";
         }
         echo "</ul>";
-    } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
-        echo "<p>No hay productos en este almacén.</p>";
     }
 
     if ($mensaje) {

@@ -14,15 +14,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conexion = conectarBD();
         $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        $clave = generarClave($apellido);
         registrarCliente($conexion, $nif, $nombre, $apellido, $cp, $direccion, $ciudad, $clave);
 
         $mensaje = "Cliente registrado correctamente. Su usuario es '$nombre' y su clave es '$clave'.";
     } catch (PDOException $e) {
-        $mensaje = "Error: " . $e->getMessage();
+        $mensaje = mostrarError($e, "Registro de Cliente");
     } finally {
-        if ($conexion) {
-            $conexion = null;
-        }
+        $conexion = null;
     }
 }
 ?>
