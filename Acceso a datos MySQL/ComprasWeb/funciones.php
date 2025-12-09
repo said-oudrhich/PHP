@@ -185,15 +185,17 @@ function verificarCliente($conn, $nombre, $clave)
 
 function stockProductoEnAlmacen($conn, $id_producto)
 {
-    $sql = "SELECT a.num_almacen, a.localidad, a2.cantidad
-                FROM almacen a, almacena a2  
-                where a.num_almacen = a2.num_almacen AND a2.id_producto = :id_producto";
+    $sql = "SELECT num_almacen, cantidad 
+            FROM almacena 
+            WHERE id_producto = :id_producto AND cantidad > 0
+            ORDER BY cantidad DESC 
+            LIMIT 1";
     $stmt = $conn->prepare($sql);
-    $stmt->bindParam(":id_producto", $id_producto);
+    $stmt->bindParam(':id_producto', $id_producto);
     $stmt->execute();
-    $stock = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $stock;
+    return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
 
 /*********************************************************************************************************************************************/
 
@@ -265,4 +267,35 @@ function nifExiste($conexion, $nif)
     $stmt = $conexion->prepare($sql);
     $stmt->execute([':nif' => $nif]);
     return $stmt->fetchColumn() > 0;
+}
+
+/*********************************************************************************************************************************************/
+
+function insertarCompra($conexion, $NIF, $id_producto, $FECHA_COMPRA, $unidades)
+{
+    $sql = "INSERT INTO compra (NIF, ID_PRODUCTO, FECHA_COMPRA, UNIDADES) 
+        VALUES (:nif, :id_producto, :fecha_compra, :unidades)";
+
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(':nif', $NIF);
+    $stmt->bindParam(':id_producto', $id_producto);
+    $stmt->bindParam(':fecha_compra', $FECHA_COMPRA);
+    $stmt->bindParam(':unidades', $unidades);
+    $stmt->execute();
+}
+
+
+function reducirStock($conn, $num_almacen, $id_producto, $cantidad)
+{
+    $sql = "UPDATE almacena 
+            SET cantidad = cantidad - :cantidad 
+            WHERE id_producto = :id_producto AND num_almacen = :num_almacen";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
+    $stmt->bindParam(':id_producto', $id_producto, PDO::PARAM_STR);
+    $stmt->bindParam(':num_almacen', $num_almacen, PDO::PARAM_INT);
+
+    $stmt->execute();
 }
