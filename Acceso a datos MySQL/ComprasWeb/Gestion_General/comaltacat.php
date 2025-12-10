@@ -31,17 +31,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <h2>Alta de Categorías</h2>
-    <form method="POST" action="comaltacat.php">
-        <label>Nombre de la categoría:</label><br>
-        <input type="text" name="nombre" required>
-        <br><br>
-        <input type="submit" value="Dar de alta">
-    </form>
+<h2>Alta de Categorías</h2>
+<form method="POST" action="comaltacat.php">
+    <label for="nombre">Nombre de la categoría:</label><br>
+    <input type="text" id="nombre" name="nombre" required>
+    <br><br>
+    <input type="submit" value="Dar de alta">
+</form>
 
-    <?php if ($mensaje): ?>
-        <p><?= $mensaje ?></p>
-    <?php endif; ?>
+<?php if ($mensaje): ?>
+    <p><?= $mensaje ?></p>
+<?php endif; ?>
 </body>
 
 </html>

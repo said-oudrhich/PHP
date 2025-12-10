@@ -9,31 +9,37 @@ $mensaje = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_producto = limpiar($_POST["producto"]);
-    $cantidad = limpiar($_POST["cantidad"]);
+    $cantidad = (int)limpiar($_POST["cantidad"]);
     $nif = limpiar($_POST["nif"]);
     $fecha_compra = date("Y-m-d");
 
-    try {
-        $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $conexion->beginTransaction();
+    if ($cantidad <= 0) {
+        $mensaje = "La cantidad debe ser mayor a 0.";
+    } else {
+        try {
+            $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $conexion->beginTransaction();
 
-        $stockInfo = stockProductoEnAlmacen($conexion, $id_producto);
+            $stockInfo = stockProductoEnAlmacen($conexion, $id_producto);
 
-        if (!$stockInfo || (int)$stockInfo['cantidad'] < $cantidad) {
+            if (!$stockInfo || (int)$stockInfo['cantidad'] < $cantidad) {
+                $conexion->rollBack();
+                $mensaje = "No hay suficiente stock disponible para realizar esta compra.";
+            } else {
+                $num_almacen = $stockInfo['num_almacen'];
+
+                insertarCompra($conexion, $nif, $id_producto, $fecha_compra, $cantidad);
+                reducirStock($conexion, $num_almacen, $id_producto, $cantidad);
+
+                $conexion->commit();
+                $mensaje = "Compra realizada con éxito.";
+            }
+        } catch (PDOException $e) {
             $conexion->rollBack();
-            $mensaje = "No hay suficiente stock para el producto seleccionado.";
-        } else {
-            $num_almacen = $stockInfo['num_almacen'];
-            insertarCompra($conexion, $nif, $id_producto, $fecha_compra, $cantidad);
-            reducirStock($conexion, $num_almacen, $id_producto, $cantidad);
-            $conexion->commit();
-            $mensaje = "Compra realizada con éxito";
+            $mensaje = "Error en la base de datos: " . $e->getMessage();
+        } finally {
+            $conexion = null;
         }
-    } catch (PDOException $e) {
-        $conexion->rollBack();
-        $mensaje = mostrarError($e, "Compra de Productos");
-    } finally {
-        $conexion = null;
     }
 }
 ?>
