@@ -1,5 +1,5 @@
 <?php
-require("errores.php");
+require_once("errores.php");
 
 /* Conexión a bd comprasweb - mysql PDO */
 function conectarBD()

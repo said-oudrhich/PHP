@@ -2,8 +2,8 @@ Consulta de Almacenes (comconsalm.php): se mostrarán los almacenes en un desple
 y se mostrará la información de los productos disponibles en el almacén seleccionado.
 
 <?php
-require("../conexion.php");
-require("../funciones.php");
+require_once("../conexion.php");
+require_once("../funciones.php");
 
 $mensaje = "";
 $conn = conectarBD();

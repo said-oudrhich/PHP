@@ -1,6 +1,6 @@
 <?php
-require("../funciones.php");
-require("../conexion.php");
+require_once("../funciones.php");
+require_once("../conexion.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nif = limpiar($_POST["nif"]);
