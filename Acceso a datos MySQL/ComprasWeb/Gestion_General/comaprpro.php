@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select name="id_producto" required>
             <?php
             foreach ($productos as $producto) {
-                echo "<option value='" . $producto['id_producto'] . "'>" . $producto['nombre'] . "</option>";
+                echo "<option value='" . $producto['ID_PRODUCTO'] . "'>" . $producto['NOMBRE'] . "</option>";
             }
             ?>
         </select><br><br>
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select name="num_almacen" required>
             <?php
             foreach ($almacenes as $almacen) {
-                echo "<option value='" . $almacen['num_almacen'] . "'>" . $almacen['localidad'] . "</option>";
+                echo "<option value='" . $almacen['NUM_ALMACEN'] . "'>" . $almacen['LOCALIDAD'] . "</option>";
             }
             ?>
         </select><br><br>

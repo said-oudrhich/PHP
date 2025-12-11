@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select name="nif" required>
             <?php
             foreach ($clientes as $cliente) {
-                echo "<option value='" . $cliente['nif'] . "'>" . $cliente['nombre'] . " (" . $cliente['nif'] . ")</option>";
+                echo "<option value='" . $cliente['NIF'] . "'>" . $cliente['NOMBRE'] . " (" . $cliente['NIF'] . ")</option>";
             }
             ?>
         </select><br><br>
@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<h3>Compras del Cliente " . htmlspecialchars($nif) . " desde " . htmlspecialchars($fecha_desde) . " hasta " . htmlspecialchars($fecha_hasta) . ":</h3>";
         echo "<ul>";
         foreach ($compras as $compra) {
-            echo "<li>Producto: " . htmlspecialchars($compra['nombre']) . "</li>";
+            echo "<li>Producto: " . htmlspecialchars($compra['NOMBRE']) . "</li>";
         }
         echo "</ul>";
     }

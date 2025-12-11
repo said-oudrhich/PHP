@@ -9,7 +9,7 @@ function limpiar($dato)
 
 function generarNuevoId_categoria($conn)
 {
-    $sql = "SELECT MAX(id_categoria) AS max_cat FROM categoria";
+    $sql = "SELECT MAX(ID_CATEGORIA) AS max_cat FROM CATEGORIA";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $ultimo = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -28,7 +28,7 @@ function generarNuevoId_categoria($conn)
 
 function insertarCategoria($conn, $id, $nombre)
 {
-    $sql = "INSERT INTO categoria (id_categoria, nombre) VALUES (:id, :nombre)";
+    $sql = "INSERT INTO CATEGORIA (ID_CATEGORIA, NOMBRE) VALUES (:id, :nombre)";
     $stmt = $conn->prepare($sql);
 
     $stmt->bindParam(":id", $id);
@@ -41,7 +41,7 @@ function insertarCategoria($conn, $id, $nombre)
 
 function generarNuevoId_producto($conn)
 {
-    $sql = "SELECT MAX(id_producto) AS max_prod FROM producto";
+    $sql = "SELECT MAX(ID_PRODUCTO) AS max_prod FROM PRODUCTO";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $ultimo = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -59,7 +59,7 @@ function generarNuevoId_producto($conn)
 
 function insertarProducto($conn, $id, $nombre, $precio, $id_categoria)
 {
-    $sql = "INSERT INTO producto (id_producto, nombre, precio, id_categoria)
+    $sql = "INSERT INTO PRODUCTO (ID_PRODUCTO, NOMBRE, PRECIO, ID_CATEGORIA)
             VALUES (:id, :nombre, :precio, :id_categoria)";
     $stmt = $conn->prepare($sql);
 
@@ -75,7 +75,7 @@ function insertarProducto($conn, $id, $nombre, $precio, $id_categoria)
 
 function desplegableCategoria($conn)
 {
-    $sql = "SELECT id_categoria, nombre FROM categoria";
+    $sql = "SELECT ID_CATEGORIA, NOMBRE FROM CATEGORIA";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -85,7 +85,7 @@ function desplegableCategoria($conn)
 
 function insertarAlmacen($conn, $num_almacen, $localidad)
 {
-    $sql = "INSERT INTO almacen (num_almacen, localidad)
+    $sql = "INSERT INTO ALMACEN (NUM_ALMACEN, LOCALIDAD)
             VALUES (:num_almacen, :localidad)";
     $stmt = $conn->prepare($sql);
 
@@ -97,7 +97,7 @@ function insertarAlmacen($conn, $num_almacen, $localidad)
 
 function generarNuevoId_almacen($conn)
 {
-    $sql = "SELECT MAX(num_almacen) AS max_id FROM almacen";
+    $sql = "SELECT MAX(NUM_ALMACEN) AS max_id FROM ALMACEN";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
 
@@ -115,7 +115,7 @@ function generarNuevoId_almacen($conn)
 
 function desplegableProducto($conn)
 {
-    $sql = "SELECT id_producto, nombre FROM producto";
+    $sql = "SELECT ID_PRODUCTO, NOMBRE FROM PRODUCTO";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -123,7 +123,7 @@ function desplegableProducto($conn)
 
 function desplegableAlmacen($conn)
 {
-    $sql = "SELECT num_almacen, localidad FROM almacen";
+    $sql = "SELECT NUM_ALMACEN, LOCALIDAD FROM ALMACEN";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -131,7 +131,7 @@ function desplegableAlmacen($conn)
 
 function insertarAprovisionamiento($conn, $num_almacen, $id_producto, $cantidad)
 {
-    $sql = "INSERT INTO almacena (num_almacen, id_producto, cantidad)
+    $sql = "INSERT INTO ALMACENA (NUM_ALMACEN, ID_PRODUCTO, CANTIDAD)
             VALUES (:num_almacen, :id_producto, :cantidad)";
     $stmt = $conn->prepare($sql);
 
@@ -148,7 +148,7 @@ function insertarAprovisionamiento($conn, $num_almacen, $id_producto, $cantidad)
 function registrarCliente($conn, $nif, $nombre, $apellido, $cp, $direccion, $ciudad, $clave)
 {
 
-    $sql = "INSERT INTO cliente (nif, nombre, apellido, cp, direccion, ciudad, clave) 
+    $sql = "INSERT INTO CLIENTE (NIF, NOMBRE, APELLIDO, CP, DIRECCION, CIUDAD, CLAVE) 
             VALUES (:nif, :nombre, :apellido, :cp, :direccion, :ciudad, :clave)";
     $stmt = $conn->prepare($sql);
 
@@ -170,7 +170,7 @@ function generarClave($apellido)
 }
 function verificarCliente($conn, $nombre, $clave)
 {
-    $sql = "SELECT * FROM cliente WHERE nombre = :nombre AND clave = :clave";
+    $sql = "SELECT * FROM CLIENTE WHERE NOMBRE = :nombre AND CLAVE = :clave";
     $stmt = $conn->prepare($sql);
 
     $stmt->bindParam(":nombre", $nombre);
@@ -185,10 +185,10 @@ function verificarCliente($conn, $nombre, $clave)
 
 function stockProductoEnAlmacen($conn, $id_producto)
 {
-    $sql = "SELECT num_almacen, cantidad 
-            FROM almacena 
-            WHERE id_producto = :id_producto AND cantidad > 0
-            ORDER BY cantidad DESC 
+    $sql = "SELECT NUM_ALMACEN, CANTIDAD 
+            FROM ALMACENA 
+            WHERE ID_PRODUCTO = :id_producto AND CANTIDAD > 0
+            ORDER BY CANTIDAD DESC 
             LIMIT 1";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':id_producto', $id_producto);
@@ -201,9 +201,9 @@ function stockProductoEnAlmacen($conn, $id_producto)
 
 function obtenerProductosEnAlmacen($conn, $num_almacen)
 {
-    $sql = "SELECT p.id_producto, p.nombre, p.precio, a2.cantidad
-            FROM producto p, almacena a2
-            WHERE p.id_producto = a2.id_producto AND a2.num_almacen = :num_almacen";
+    $sql = "SELECT p.ID_PRODUCTO, p.NOMBRE, p.PRECIO, a2.CANTIDAD
+            FROM PRODUCTO p, ALMACENA a2
+            WHERE p.ID_PRODUCTO = a2.ID_PRODUCTO AND a2.NUM_ALMACEN = :num_almacen";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(":num_almacen", $num_almacen);
     $stmt->execute();
@@ -215,7 +215,7 @@ function obtenerProductosEnAlmacen($conn, $num_almacen)
 
 function desplegableClientes($conn)
 {
-    $sql = "SELECT nif, nombre FROM cliente";
+    $sql = "SELECT NIF, NOMBRE FROM CLIENTE";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -223,11 +223,11 @@ function desplegableClientes($conn)
 
 function obtenerComprasPorClienteYFecha($conn, $nif, $fecha_desde, $fecha_hasta)
 {
-    $sql = "SELECT p.nombre
-            FROM compra c, producto p
-            WHERE c.id_producto = p.id_producto 
-              AND c.nif = :nif 
-              AND c.fecha_compra BETWEEN :fecha_desde AND :fecha_hasta";
+    $sql = "SELECT p.NOMBRE
+            FROM COMPRA c, PRODUCTO p
+            WHERE c.ID_PRODUCTO = p.ID_PRODUCTO 
+              AND c.NIF = :nif 
+              AND c.FECHA_COMPRA BETWEEN :fecha_desde AND :fecha_hasta";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(":nif", $nif);
     $stmt->bindParam(":fecha_desde", $fecha_desde);
@@ -263,7 +263,7 @@ function comprobarNif($nif)
 
 function nifExiste($conexion, $nif)
 {
-    $sql = "SELECT COUNT(*) FROM cliente WHERE nif = :nif";
+    $sql = "SELECT COUNT(*) FROM CLIENTE WHERE NIF = :nif";
     $stmt = $conexion->prepare($sql);
     $stmt->execute([':nif' => $nif]);
     return $stmt->fetchColumn() > 0;
@@ -271,16 +271,16 @@ function nifExiste($conexion, $nif)
 
 /*********************************************************************************************************************************************/
 
-function insertarCompra($conexion, $NIF, $id_producto, $FECHA_COMPRA, $unidades)
+function insertarCompra($conexion, $nif, $id_producto, $fecha_compra, $unidades)
 {
-    $sql = "INSERT INTO compra (NIF, ID_PRODUCTO, FECHA_COMPRA, UNIDADES) 
+    $sql = "INSERT INTO COMPRA (NIF, ID_PRODUCTO, FECHA_COMPRA, UNIDADES) 
         VALUES (:nif, :id_producto, :fecha_compra, :unidades)";
 
 
     $stmt = $conexion->prepare($sql);
-    $stmt->bindParam(':nif', $NIF);
+    $stmt->bindParam(':nif', $nif);
     $stmt->bindParam(':id_producto', $id_producto);
-    $stmt->bindParam(':fecha_compra', $FECHA_COMPRA);
+    $stmt->bindParam(':fecha_compra', $fecha_compra);
     $stmt->bindParam(':unidades', $unidades);
     $stmt->execute();
 }
@@ -288,9 +288,9 @@ function insertarCompra($conexion, $NIF, $id_producto, $FECHA_COMPRA, $unidades)
 
 function reducirStock($conn, $num_almacen, $id_producto, $cantidad)
 {
-    $sql = "UPDATE almacena 
-            SET cantidad = cantidad - :cantidad 
-            WHERE id_producto = :id_producto AND num_almacen = :num_almacen";
+    $sql = "UPDATE ALMACENA 
+            SET CANTIDAD = CANTIDAD - :cantidad 
+            WHERE ID_PRODUCTO = :id_producto AND NUM_ALMACEN = :num_almacen";
 
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);

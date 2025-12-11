@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select name="id_producto" required>
             <?php
             foreach ($productos as $producto) {
-                echo "<option value='" . $producto['id_producto'] . "'>" . $producto['nombre'] . "</option>";
+                echo "<option value='" . $producto['ID_PRODUCTO'] . "'>" . $producto['NOMBRE'] . "</option>";
             }
             ?>
         </select><br><br>
@@ -63,9 +63,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <tbody>
                     <?php foreach ($stock as $registro): ?>
                         <tr>
-                            <td><?= $registro['num_almacen'] ?></td>
-                            <td><?= $registro['localidad'] ?></td>
-                            <td><?= $registro['cantidad'] ?> unidades</td>
+                            <td><?= $registro['NUM_ALMACEN'] ?></td>
+                            <td><?= $registro['LOCALIDAD'] ?></td>
+                            <td><?= $registro['CANTIDAD'] ?> unidades</td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select name="id_categoria" required>
             <?php // Rellenamos el desplegable con las categorías
             foreach ($categorias as $categoria) {
-                echo "<option value='" . $categoria['id_categoria'] . "'>" . $categoria['nombre'] . "</option>";
+                echo "<option value='" . $categoria['ID_CATEGORIA'] . "'>" . $categoria['NOMBRE'] . "</option>";
             }
             ?>
         </select><br><br>

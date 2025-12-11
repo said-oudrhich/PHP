@@ -22,11 +22,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $stockInfo = stockProductoEnAlmacen($conexion, $id_producto);
 
-            if (!$stockInfo || (int)$stockInfo['cantidad'] < $cantidad) {
+            if (!$stockInfo || (int)$stockInfo['CANTIDAD'] < $cantidad) {
                 $conexion->rollBack();
                 $mensaje = "No hay suficiente stock disponible para realizar esta compra.";
             } else {
-                $num_almacen = $stockInfo['num_almacen'];
+                $num_almacen = $stockInfo['NUM_ALMACEN'];
 
                 insertarCompra($conexion, $nif, $id_producto, $fecha_compra, $cantidad);
                 reducirStock($conexion, $num_almacen, $id_producto, $cantidad);
@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="nif">NIF:</label>
         <select name="nif" id="nif">
             <?php foreach ($clientes as $cliente): ?>
-                <option value="<?php echo $cliente['nif']; ?>"><?php echo $cliente['nif']; ?></option>
+                <option value="<?php echo $cliente['NIF']; ?>"><?php echo $cliente['NIF']; ?></option>
             <?php endforeach; ?>
         </select>
         <br>
@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="producto">Producto:</label>
         <select name="producto" id="producto">
             <?php foreach ($productos as $producto): ?>
-                <option value="<?php echo $producto['id_producto']; ?>"><?php echo $producto['nombre']; ?></option>
+                <option value="<?php echo $producto['ID_PRODUCTO']; ?>"><?php echo $producto['NOMBRE']; ?></option>
             <?php endforeach; ?>
         </select>
         <br>

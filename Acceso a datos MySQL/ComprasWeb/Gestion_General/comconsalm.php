@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select name="num_almacen" required>
             <?php // Rellenamos el desplegable con los almacenes
             foreach ($almacenes as $almacen) {
-                echo "<option value='" . $almacen['num_almacen'] . "'>Almacén " . $almacen['num_almacen'] . " - " . $almacen['localidad'] . "</option>";
+                echo "<option value='" . $almacen['NUM_ALMACEN'] . "'>Almacén " . $almacen['NUM_ALMACEN'] . " - " . $almacen['LOCALIDAD'] . "</option>";
             }
             ?>
         </select><br><br>
@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<h3>Productos en el Almacén " . htmlspecialchars($num_almacen) . ":</h3>";
         echo "<ul>";
         foreach ($productos as $producto) {
-            echo "<li>" . htmlspecialchars($producto['nombre']) . " - Cantidad: " . htmlspecialchars($producto['cantidad']) . "</li>";
+            echo "<li>" . htmlspecialchars($producto['NOMBRE']) . " - Cantidad: " . htmlspecialchars($producto['CANTIDAD']) . "</li>";
         }
         echo "</ul>";
     }
