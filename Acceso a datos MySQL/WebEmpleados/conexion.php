@@ -1,19 +1,17 @@
 <?php
-require_once("errores.php");
-
-/* Conexión a bd comprasweb - mysql PDO */
+/* Conexión a bd empleados1n - mysql PDO */
 function conectarBD()
 {
     $servername = "localhost";
     $username = "root";
     $password = "rootroot";
-    $dbname = "COMPRASWEB";
+    $dbname = "empleados1n";
 
     try {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $conn;
     } catch (PDOException $e) {
-        echo mostrarError($e, "Conexión");
+        echo "Error: " . $e->getMessage();
     }
 }
