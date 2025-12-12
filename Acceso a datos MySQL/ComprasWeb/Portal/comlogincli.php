@@ -2,8 +2,6 @@
 require_once("../funciones.php");
 require_once("../conexion.php");
 
-session_start(); // iniciar sesión al inicio del script
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = limpiar($_POST["nombre"]);
     $clave = limpiar($_POST["clave"]);
@@ -15,8 +13,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $verificacionCliente = verificarCliente($conexion, $nombre, $clave);
 
         if ($verificacionCliente) {
+            session_start();
             $_SESSION['NIF'] = obtenerNif($conexion, $nombre);
-            // Redirigir inmediatamente
             header("Location: home.php");
             exit();
         } else {
