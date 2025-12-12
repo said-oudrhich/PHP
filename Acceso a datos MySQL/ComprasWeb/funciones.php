@@ -299,3 +299,13 @@ function reducirStock($conn, $num_almacen, $id_producto, $cantidad)
 
     $stmt->execute();
 }
+/*********************************************************************************************************************************************/
+
+function obtenerNif($conn, $nombre)
+{
+    $sql = "SELECT NIF FROM CLIENTE WHERE NOMBRE = :nombre";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':nombre', $nombre);
+    $stmt->execute();
+    return $stmt->fetchColumn();
+}

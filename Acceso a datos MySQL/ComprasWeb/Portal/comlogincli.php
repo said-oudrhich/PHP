@@ -2,7 +2,7 @@
 require_once("../funciones.php");
 require_once("../conexion.php");
 
-session_start();
+session_start(); // iniciar sesión al inicio del script
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = limpiar($_POST["nombre"]);
@@ -12,9 +12,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conexion = conectarBD();
         $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        if (verificarCliente($conexion, $nombre, $clave)) {
-            $_SESSION['usuario'] = $nombre;
-            $mensaje = "Login exitoso. Bienvenido, $nombre.";
+        $verificacionCliente = verificarCliente($conexion, $nombre, $clave);
+
+        if ($verificacionCliente) {
+            $_SESSION['NIF'] = obtenerNif($conexion, $nombre);
+            // Redirigir inmediatamente
+            header("Location: home.php");
+            exit();
         } else {
             $mensaje = "Nombre de usuario o clave incorrectos.";
         }
@@ -24,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conexion = null;
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="es">
