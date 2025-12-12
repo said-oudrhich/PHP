@@ -4,17 +4,21 @@ require_once("../conexion.php");
 
 $mensaje = "";
 
-$conn = conectarBD();
+session_start();
 
-// Cargamos clientes para el desplegable
-$clientes = desplegableClientes($conn);
+if (!isset($_SESSION['NIF'])) {
+    header("Location: ../Portal/comlogincli.php");
+    exit();
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nif = limpiar($_POST["nif"]);
+    $nif = $_SESSION['NIF'];
     $fecha_desde = limpiar($_POST["fecha_desde"]);
     $fecha_hasta = limpiar($_POST["fecha_hasta"]);
 
     try {
+        $conn = conectarBD();
+
         // Obtenemos las compras del cliente en el periodo seleccionado
         $compras = obtenerComprasPorClienteYFecha($conn, $nif, $fecha_desde, $fecha_hasta);
         if (!empty($compras)) {
@@ -42,14 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <h2>Consulta de Compras por Cliente y Fecha</h2>
     <form method="POST" action="comconscom.php">
-        <label>Seleccione un cliente:</label><br>
-        <select name="nif" required>
-            <?php
-            foreach ($clientes as $cliente) {
-                echo "<option value='" . $cliente['NIF'] . "'>" . $cliente['NOMBRE'] . " (" . $cliente['NIF'] . ")</option>";
-            }
-            ?>
-        </select><br><br>
         <label>Fecha desde:</label><br>
         <input type="date" name="fecha_desde" required><br><br>
         <label>Fecha hasta:</label><br>

@@ -23,9 +23,9 @@ $NIF = $_SESSION['NIF'];
 
     <h2>Opciones disponibles:</h2>
     <ul>
-        <li><a href="../Gestion_Clientes/comcompro.php">Compra de productos</a></li>
+        <li><a href="../Gestion_Clientes/compro.php">Compra de productos</a></li>
         <li><a href="../Gestion_General/comconscom.php">Consulta de compras</a></li>
-        <li><a href="logout.php">Cerrar sesión</a></li>
+        <li><a href="comlogout.php">Cerrar sesión</a></li>
     </ul>
 </body>
 

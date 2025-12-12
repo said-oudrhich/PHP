@@ -1,17 +1,22 @@
 <?php
 require_once("../funciones.php");
 require_once("../conexion.php");
+session_start();
+
+if (!isset($_SESSION['NIF'])) {
+    header("Location: ../Portal/comlogincli.php");
+    exit();
+}
 
 $conexion = conectarBD();
 $productos = desplegableProducto($conexion);
-$clientes = desplegableClientes($conexion);
 $mensaje = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_producto = limpiar($_POST["producto"]);
     $cantidad = (int)limpiar($_POST["cantidad"]);
-    $nif = limpiar($_POST["nif"]);
     $fecha_compra = date("Y-m-d");
+    $NIF = $_SESSION['NIF'];
 
     if ($cantidad <= 0) {
         $mensaje = "La cantidad debe ser mayor a 0.";
@@ -28,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 $num_almacen = $stockInfo['NUM_ALMACEN'];
 
-                insertarCompra($conexion, $nif, $id_producto, $fecha_compra, $cantidad);
+                insertarCompra($conexion, $NIF, $id_producto, $fecha_compra, $cantidad);
                 reducirStock($conexion, $num_almacen, $id_producto, $cantidad);
 
                 $conexion->commit();
@@ -57,14 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <h1>Compra de Productos</h1>
     <form action="compro.php" method="post">
-        <label for="nif">NIF:</label>
-        <select name="nif" id="nif">
-            <?php foreach ($clientes as $cliente): ?>
-                <option value="<?php echo $cliente['NIF']; ?>"><?php echo $cliente['NIF']; ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br>
-
         <label for="producto">Producto:</label>
         <select name="producto" id="producto">
             <?php foreach ($productos as $producto): ?>
