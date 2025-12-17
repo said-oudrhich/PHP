@@ -40,6 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <?php require_once __DIR__ . '/../header.php'; ?>
     <h2>Alta de Almacenes</h2>
     <form method="POST" action="comaltaalm.php">
         <label>Nombre del almacén:</label><br>
@@ -51,25 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php if ($mensaje): ?>
         <p><?= $mensaje ?></p>
     <?php endif; ?>
-    <!-- Botón fijo de cerrar sesión -->
-    <style>
-        .logout-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-        }
 
-        .logout-btn a {
-            display: inline-block;
-            padding: 6px 10px;
-            background: #c00;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-    </style>
-    <div class="logout-btn"><a href="../Portal/comlogout.php">Cerrar sesión</a></div>
 </body>
 
 </html>

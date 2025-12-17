@@ -15,10 +15,23 @@ $productos = desplegableProducto($conn);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['agregar'])) {
-        $_SESSION['cesta'][] = [
-            'nombre' => limpiar($_POST['producto']),
-            'cantidad' => limpiar($_POST['cantidad'])
-        ];
+        $ID_PRODUCTO = limpiar($_POST['producto']);
+        $UNIDADES = (int)limpiar($_POST['cantidad']);
+
+        // Inicializar la cesta si no existe
+        if (!isset($_SESSION['cesta'])) {
+            $_SESSION['cesta'] = [];
+        }
+
+        // Incrementar si ya existe, o agregar nuevo
+        if (isset($_SESSION['cesta'][$ID_PRODUCTO])) {
+            $_SESSION['cesta'][$ID_PRODUCTO]['UNIDADES'] += $UNIDADES;
+        } else {
+            $_SESSION['cesta'][$ID_PRODUCTO] = [
+                'ID_PRODUCTO' => $ID_PRODUCTO,
+                'UNIDADES' => $UNIDADES
+            ];
+        }
     }
 
     if (isset($_POST['limpiar'])) {
@@ -35,11 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
+    <?php require_once __DIR__ . '/../header.php'; ?>
     <h1>Agregar Producto a la Cesta</h1>
     <form method="post">
         <select name="producto">
             <?php foreach ($productos as $p): ?>
-                <option value="<?php echo $p['NOMBRE']; ?>">
+                <option value="<?php echo $p['ID_PRODUCTO']; ?>">
                     <?php echo $p['NOMBRE']; ?>
                 </option>
             <?php endforeach; ?>
@@ -63,23 +77,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 </html>
-
-<!-- Botón fijo de cerrar sesión -->
-<style>
-    .logout-btn {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-    }
-
-    .logout-btn a {
-        display: inline-block;
-        padding: 6px 10px;
-        background: #c00;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: bold;
-    }
-</style>
-<div class="logout-btn"><a href="../Portal/comlogout.php">Cerrar sesión</a></div>

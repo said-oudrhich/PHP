@@ -188,12 +188,11 @@ function stockProductoEnAlmacen($conn, $id_producto)
     $sql = "SELECT NUM_ALMACEN, CANTIDAD 
             FROM ALMACENA 
             WHERE ID_PRODUCTO = :id_producto AND CANTIDAD > 0
-            ORDER BY CANTIDAD DESC 
-            LIMIT 1";
+            ORDER BY CANTIDAD DESC";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':id_producto', $id_producto);
     $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 

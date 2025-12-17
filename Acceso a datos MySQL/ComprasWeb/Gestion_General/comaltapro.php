@@ -21,6 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $precio = limpiar($_POST["precio"]);
 
     try {
+
         // Generamos el nuevo ID y insertamos el producto
         $nuevo_id = generarNuevoId_producto($conn);
         insertarProducto($conn, $nuevo_id, $nombre, $precio, $id_categoria);
@@ -44,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <?php require_once __DIR__ . '/../header.php'; ?>
     <h2>Alta de Productos</h2>
     <form method="POST" action="comaltapro.php">
         <label>Nombre de la producto:</label><br>
@@ -66,25 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php if ($mensaje): ?>
         <p><?= $mensaje ?></p>
     <?php endif; ?>
-    <!-- Botón fijo de cerrar sesión -->
-    <style>
-        .logout-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-        }
 
-        .logout-btn a {
-            display: inline-block;
-            padding: 6px 10px;
-            background: #c00;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-    </style>
-    <div class="logout-btn"><a href="../Portal/comlogout.php">Cerrar sesión</a></div>
 </body>
 
 </html>

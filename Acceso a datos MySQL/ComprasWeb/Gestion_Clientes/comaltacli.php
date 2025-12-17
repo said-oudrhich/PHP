@@ -50,6 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <?php require_once __DIR__ . '/../header.php'; ?>
     <h2>Alta de Clientes</h2>
     <form method="POST" action="comaltacli.php">
         <label>NIF:</label><br>
@@ -73,25 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     ?>
 
-    <!-- Botón fijo de cerrar sesión -->
-    <style>
-        .logout-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-        }
 
-        .logout-btn a {
-            display: inline-block;
-            padding: 6px 10px;
-            background: #c00;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-    </style>
-    <div class="logout-btn"><a href="../Portal/comlogout.php">Cerrar sesión</a></div>
 
 </body>
 

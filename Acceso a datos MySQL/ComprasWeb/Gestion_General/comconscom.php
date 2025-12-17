@@ -44,6 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <?php $nombre_cookie = $_COOKIE['NOMBRE'] ?? null;
+    if ($nombre_cookie) echo '<p>Bienvenido, ' . htmlspecialchars($nombre_cookie) . '</p>'; ?>
     <h2>Consulta de Compras por Cliente y Fecha</h2>
     <form method="POST" action="comconscom.php">
         <label>Fecha desde:</label><br>
@@ -53,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="submit" value="Consultar">
     </form>
 
+    <?php require_once __DIR__ . '/../header.php'; ?>
     <?php
     if (!empty($compras)) {
         echo "<h3>Compras del Cliente " . htmlspecialchars($nif) . " desde " . htmlspecialchars($fecha_desde) . " hasta " . htmlspecialchars($fecha_hasta) . ":</h3>";
@@ -67,25 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     ?>
 
-    <!-- Botón fijo de cerrar sesión -->
-    <style>
-        .logout-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-        }
 
-        .logout-btn a {
-            display: inline-block;
-            padding: 6px 10px;
-            background: #c00;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-    </style>
-    <div class="logout-btn"><a href="../Portal/comlogout.php">Cerrar sesión</a></div>
 
 </body>
 

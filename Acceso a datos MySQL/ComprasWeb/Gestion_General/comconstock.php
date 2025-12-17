@@ -40,6 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <?php require_once __DIR__ . '/../header.php'; ?>
     <h2>Consulta de Stock de Productos</h2>
     <form method="POST" action="comconstock.php">
         <label>Producto:</label><br>
@@ -58,46 +59,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php endif; ?>
 
     <?php if (!empty($stock)): ?>
-        <?php foreach ($stock as $registro): ?>
-            <table border="1" cellpadding="5" cellspacing="0">
-                <thead>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Almacén</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($stock as $registro): ?>
                     <tr>
-                        <th>Almacén</th>
-                        <th>Localidad</th>
-                        <th>Cantidad</th>
+                        <td><?= $registro['NUM_ALMACEN'] ?></td>
+                        <td><?= (int)$registro['CANTIDAD'] ?> unidades</td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($stock as $registro): ?>
-                        <tr>
-                            <td><?= $registro['NUM_ALMACEN'] ?></td>
-                            <td><?= $registro['LOCALIDAD'] ?></td>
-                            <td><?= $registro['CANTIDAD'] ?> unidades</td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endforeach; ?>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     <?php endif; ?>
-    <!-- Botón fijo de cerrar sesión -->
-    <style>
-        .logout-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-        }
 
-        .logout-btn a {
-            display: inline-block;
-            padding: 6px 10px;
-            background: #c00;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-    </style>
-    <div class="logout-btn"><a href="../Portal/comlogout.php">Cerrar sesión</a></div>
+
 </body>
 
 </html>

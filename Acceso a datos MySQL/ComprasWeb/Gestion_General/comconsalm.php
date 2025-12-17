@@ -47,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <?php require_once __DIR__ . '/../header.php'; ?>
     <h2>Consulta de Almacenes</h2>
     <form method="POST" action="comconsalm.php">
         <label>Seleccione un almacén:</label><br>
@@ -92,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-weight: bold;
         }
     </style>
-    <div class="logout-btn"><a href="../Portal/comlogout.php">Cerrar sesión</a></div>
+
 </body>
 
 </html>

@@ -13,8 +13,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $verificacionCliente = verificarCliente($conexion, $nombre, $clave);
 
         if ($verificacionCliente) {
+            // Iniciar sesión y guardar NIF
             session_start();
             $_SESSION['NIF'] = obtenerNif($conexion, $nombre);
+            // Guardar el nombre del cliente en cookie para usar en todas las páginas (1 día)
+            setcookie('NOMBRE', $nombre, time() + 86400, '/');
             header("Location: home.php");
             exit();
         } else {
