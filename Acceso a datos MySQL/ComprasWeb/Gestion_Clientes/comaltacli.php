@@ -1,6 +1,12 @@
 <?php
 require_once("../funciones.php");
 require_once("../conexion.php");
+session_start();
+
+if (!isset($_SESSION['NIF'])) {
+    header("Location: ../Portal/comlogincli.php");
+    exit();
+}
 
 $mensaje = "";
 
@@ -66,6 +72,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<p>" . htmlspecialchars($mensaje) . "</p>";
     }
     ?>
+
+    <!-- Botón fijo de cerrar sesión -->
+    <style>
+        .logout-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+        }
+
+        .logout-btn a {
+            display: inline-block;
+            padding: 6px 10px;
+            background: #c00;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+    <div class="logout-btn"><a href="../Portal/comlogout.php">Cerrar sesión</a></div>
 
 </body>
 
