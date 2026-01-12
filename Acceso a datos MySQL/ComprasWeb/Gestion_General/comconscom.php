@@ -44,8 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <?php $nombre_cookie = $_COOKIE['NOMBRE'] ?? null;
-    if ($nombre_cookie) echo '<p>Bienvenido, ' . htmlspecialchars($nombre_cookie) . '</p>'; ?>
     <h2>Consulta de Compras por Cliente y Fecha</h2>
     <form method="POST" action="comconscom.php">
         <label>Fecha desde:</label><br>
@@ -69,9 +67,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<p>" . htmlspecialchars($mensaje) . "</p>";
     }
     ?>
-
-
-
 </body>
 
 </html>
