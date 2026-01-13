@@ -1,8 +1,6 @@
 <?php
-session_start(); // Necesario para el carrito
 require_once("funciones.php");
 
-// Verificación de login (usando la cookie que creaste en el ej 1)
 if (!isset($_COOKIE['NOMBRE'])) {
     header("Location: pe_login.php");
     exit();
@@ -12,122 +10,146 @@ $customerNumber = $_COOKIE['NOMBRE'];
 $mensaje = "";
 $conexion = conectarBD();
 
-// Inicializar el carrito si no existe
-if (!isset($_SESSION['carrito'])) {
-    $_SESSION['carrito'] = [];
+// Obtener carrito (array asociativo)
+function obtenerCarrito() {
+    return isset($_COOKIE['carrito']) && is_array($_COOKIE['carrito'])
+        ? $_COOKIE['carrito']
+        : [];
 }
 
-// --- LÓGICA DE CONTROL ---
+// Guardar carrito en cookies (array asociativo)
+function guardarCarrito($carrito) {
+    foreach ($carrito as $codigo => $cantidad) {
+        setcookie("carrito[$codigo]", $cantidad, time() + 86400, '/');
+        $_COOKIE['carrito'][$codigo] = $cantidad;
+    }
+}
 
-// Acción: Añadir producto al carrito
+// Vaciar carrito
+function vaciarCarrito() {
+    if (isset($_COOKIE['carrito'])) {
+        foreach ($_COOKIE['carrito'] as $codigo => $valor) {
+            setcookie("carrito[$codigo]", '', time() - 3600, '/');
+        }
+    }
+    unset($_COOKIE['carrito']);
+}
+
+$carrito = obtenerCarrito();
+
+// Añadir producto
 if (isset($_POST['añadir'])) {
-    $productCode = $_POST['productCode'];
+    $productCode = limpiar($_POST['productCode']);
     $cantidad = (int)$_POST['quantity'];
 
     if ($cantidad > 0) {
-        // Si ya existe, sumamos la cantidad
-        if (isset($_SESSION['carrito'][$productCode])) {
-            $_SESSION['carrito'][$productCode] += $cantidad;
+        if (isset($carrito[$productCode])) {
+            $carrito[$productCode] += $cantidad;
         } else {
-            $_SESSION['carrito'][$productCode] = $cantidad;
+            $carrito[$productCode] = $cantidad;
         }
+        guardarCarrito($carrito);
         $mensaje = "Producto añadido al carrito.";
     }
 }
 
-// Acción: Vaciar carrito
+// Vaciar carrito
 if (isset($_POST['vaciar'])) {
-    $_SESSION['carrito'] = [];
+    vaciarCarrito();
+    $carrito = [];
     $mensaje = "Carrito vaciado.";
 }
 
-// Acción: Confirmar pedido y pago
+// Confirmar pedido
 if (isset($_POST['confirmar'])) {
     $checkNumber = limpiar($_POST['checkNumber']);
 
-    if (empty($_SESSION['carrito'])) {
+    if (empty($carrito)) {
         $mensaje = "Error: El carrito está vacío.";
     } elseif (!validarCheckNumber($checkNumber)) {
-        $mensaje = "Error: El formato del número de pago es incorrecto (AA99999).";
+        $mensaje = "Error: Formato incorrecto (AA99999).";
     } else {
         try {
-            // Usamos la función realizarPedido de funciones.php
-            realizarPedido($conexion, $_SESSION['carrito'], $customerNumber, $checkNumber);
-            $_SESSION['carrito'] = []; // Limpiamos tras éxito
+            realizarPedido($conexion, $carrito, $customerNumber, $checkNumber);
+            vaciarCarrito();
+            $carrito = [];
             $mensaje = "Pedido realizado con éxito.";
         } catch (Exception $e) {
-            $mensaje = "Error al procesar el pedido: " . $e->getMessage();
+            $mensaje = "Error: " . $e->getMessage();
         }
     }
 }
 
-// Obtener datos para la vista
 $productos = obtenerProductosConStock($conexion);
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Alta de Pedido</title>
 </head>
-
 <body>
-    <h2>Realizar Pedido - Cliente: <?= htmlspecialchars($customerNumber) ?></h2>
-    <p><a href="pe_inicio.php">Volver al Menú</a></p>
 
-    <?php if ($mensaje): ?>
-        <p><strong><?= $mensaje ?></strong></p>
-    <?php endif; ?>
+<?php include("header.php"); ?>
 
-    <fieldset>
-        <legend>Añadir Productos</legend>
-        <form method="post" action="pe_altaped.php">
-            <label>Producto:</label>
-            <select name="productCode" required>
-                <?php foreach ($productos as $prod): ?>
-                    <option value="<?= $prod['productCode'] ?>">
-                        <?= $prod['productName'] ?> (Stock: <?= $prod['buyPrice'] ?>€)
-                    </option>
-                <?php endforeach; ?>
-            </select>
+<h2>Realizar Pedido - Cliente: <?= htmlspecialchars($customerNumber) ?></h2>
+<p><a href="pe_inicio.php">Volver</a></p>
 
-            <label>Cantidad:</label>
-            <input type="number" name="quantity" value="1" min="1" required>
+<?php if ($mensaje): ?>
+    <p><strong><?= htmlspecialchars($mensaje) ?></strong></p>
+<?php endif; ?>
 
-            <input type="submit" name="añadir" value="Añadir al Carrito">
-        </form>
-    </fieldset>
+<fieldset>
+    <legend>Añadir Productos</legend>
+    <form method="post">
+        <label>Producto:</label>
+        <select name="productCode" required>
+            <?php foreach ($productos as $prod): ?>
+                <option value="<?= htmlspecialchars($prod['productCode']) ?>">
+                    <?= htmlspecialchars($prod['productName']) ?> (<?= $prod['buyPrice'] ?>€)
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+        <label>Cantidad:</label>
+        <input type="number" name="quantity" value="1" min="1" required>
+
+        <input type="submit" name="añadir" value="Añadir">
+    </form>
+</fieldset>
+
+<br>
+
+<?php if (!empty($carrito)): ?>
+<fieldset>
+    <legend>Carrito</legend>
+
+    <table border="1">
+        <tr>
+            <th>Código</th>
+            <th>Cantidad</th>
+        </tr>
+        <?php foreach ($carrito as $code => $qty): ?>
+        <tr>
+            <td><?= htmlspecialchars($code) ?></td>
+            <td><?= (int)$qty ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
 
     <br>
 
-    <?php if (!empty($_SESSION['carrito'])): ?>
-        <fieldset>
-            <legend>Resumen del Pedido</legend>
-            <table border="1">
-                <tr>
-                    <th>Código Producto</th>
-                    <th>Cantidad</th>
-                </tr>
-                <?php foreach ($_SESSION['carrito'] as $code => $qty): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($code) ?></td>
-                        <td><?= $qty ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
+    <form method="post">
+        <label>Nº Pago (AA99999):</label>
+        <input type="text" name="checkNumber" placeholder="AB12345" required>
 
-            <form method="post" action="pe_altaped.php" style="margin-top: 15px;">
-                <label>Número de Pago (AA99999):</label>
-                <input type="text" name="checkNumber" placeholder="Ej: AB12345">
-                <br><br>
-                <input type="submit" name="confirmar" value="Finalizar Pedido">
-                <input type="submit" name="vaciar" value="Vaciar Carrito">
-            </form>
-        </fieldset>
-    <?php endif; ?>
+        <br><br>
+
+        <input type="submit" name="confirmar" value="Confirmar Pedido">
+        <input type="submit" name="vaciar" value="Vaciar Carrito">
+    </form>
+</fieldset>
+<?php endif; ?>
 
 </body>
-
 </html>
