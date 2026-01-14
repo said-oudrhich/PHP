@@ -84,54 +84,93 @@ function validarCheckNumber($checkNumber)
     return preg_match('/^[A-Z]{2}[0-9]{5}$/', $checkNumber);
 }
 
-/* Realizar pedido completo usando bindParam */
+
+/* 1. Insertar pedido */
+function insertarPedido($conexion, $orderNumber, $cliente)
+{
+    $stmt = $conexion->prepare(
+        "INSERT INTO orders 
+         (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
+         VALUES (:order, CURDATE(), CURDATE(), NULL, 'In Process', NULL, :cliente)"
+    );
+    $stmt->bindParam(':order', $orderNumber, PDO::PARAM_INT);
+    $stmt->bindParam(':cliente', $cliente, PDO::PARAM_INT);
+    $stmt->execute();
+}
+
+/* 2. Obtener datos del producto */
+function obtenerProducto($conexion, $productCode)
+{
+    $stmt = $conexion->prepare(
+        "SELECT BuyPrice, quantityInStock
+         FROM products
+         WHERE ProductCode = :code"
+    );
+    $stmt->bindParam(':code', $productCode, PDO::PARAM_STR);
+    $stmt->execute();
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/* 3. Insertar detalle del pedido */
+function insertarDetallePedido($conexion, $orderNumber, $productCode, $cantidad, $precio, $linea)
+{
+    $stmt = $conexion->prepare(
+        "INSERT INTO orderdetails
+         (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
+         VALUES (:order, :product, :qty, :price, :line)"
+    );
+    $stmt->bindParam(':order', $orderNumber, PDO::PARAM_INT);
+    $stmt->bindParam(':product', $productCode, PDO::PARAM_STR);
+    $stmt->bindParam(':qty', $cantidad, PDO::PARAM_INT);
+    $stmt->bindParam(':price', $precio);
+    $stmt->bindParam(':line', $linea, PDO::PARAM_INT);
+    $stmt->execute();
+}
+
+/* 4. Actualizar stock */
+function actualizarStock($conexion, $productCode, $cantidad)
+{
+    $stmt = $conexion->prepare(
+        "UPDATE products
+         SET quantityInStock = quantityInStock - :qty
+         WHERE ProductCode = :code"
+    );
+    $stmt->bindParam(':qty', $cantidad, PDO::PARAM_INT);
+    $stmt->bindParam(':code', $productCode, PDO::PARAM_STR);
+    $stmt->execute();
+}
+
+/* 5. Registrar pago */
+function registrarPago($conexion, $cliente, $checkNumber, $total)
+{
+    $stmt = $conexion->prepare(
+        "INSERT INTO payments
+         (customerNumber, checkNumber, paymentDate, amount)
+         VALUES (:cliente, :check, CURDATE(), :total)"
+    );
+    $stmt->bindParam(':cliente', $cliente, PDO::PARAM_INT);
+    $stmt->bindParam(':check', $checkNumber, PDO::PARAM_STR);
+    $stmt->bindParam(':total', $total);
+    $stmt->execute();
+}
+
+/* 6. Pedido completo */
 function realizarPedido($conexion, $pedido, $cliente, $checkNumber)
 {
     try {
         $conexion->beginTransaction();
 
-        // 1. Nuevo orderNumber
         $orderNumber = obtenerSiguienteOrderNumber($conexion);
-
-        // 2. Insertar pedido
-        $stmt = $conexion->prepare(
-            "INSERT INTO orders 
-             (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
-             VALUES (:order, CURDATE(), CURDATE(), NULL, 'In Process', NULL, :cliente)"
-        );
-        $stmt->bindParam(':order', $orderNumber, PDO::PARAM_INT);
-        $stmt->bindParam(':cliente', $cliente, PDO::PARAM_INT);
-        $stmt->execute();
+        insertarPedido($conexion, $orderNumber, $cliente);
 
         $total = 0;
         $linea = 1;
 
-        // Preparar statements fuera del bucle
-        $stmtProducto = $conexion->prepare(
-            "SELECT BuyPrice, quantityInStock 
-             FROM Products 
-             WHERE ProductCode = :code"
-        );
-
-        $stmtDetalle = $conexion->prepare(
-            "INSERT INTO orderdetails
-             (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
-             VALUES (:order, :product, :qty, :price, :line)"
-        );
-
-        $stmtStock = $conexion->prepare(
-            "UPDATE products
-             SET quantityInStock = quantityInStock - :qty
-             WHERE ProductCode = :code"
-        );
-
-        // 3. Detalles del pedido y actualizar stock
         foreach ($pedido as $productCode => $cantidad) {
             if ($cantidad <= 0) continue;
 
-            $stmtProducto->bindParam(':code', $productCode, PDO::PARAM_STR);
-            $stmtProducto->execute();
-            $producto = $stmtProducto->fetch(PDO::FETCH_ASSOC);
+            $producto = obtenerProducto($conexion, $productCode);
 
             if ($cantidad > $producto['quantityInStock']) {
                 throw new Exception("Stock insuficiente para $productCode");
@@ -140,31 +179,20 @@ function realizarPedido($conexion, $pedido, $cliente, $checkNumber)
             $precio = $producto['BuyPrice'];
             $total += $precio * $cantidad;
 
-            // Insertar detalle
-            $stmtDetalle->bindParam(':order', $orderNumber, PDO::PARAM_INT);
-            $stmtDetalle->bindParam(':product', $productCode, PDO::PARAM_STR);
-            $stmtDetalle->bindParam(':qty', $cantidad, PDO::PARAM_INT);
-            $stmtDetalle->bindParam(':price', $precio);
-            $stmtDetalle->bindParam(':line', $linea, PDO::PARAM_INT);
-            $stmtDetalle->execute();
-            $linea++;
+            insertarDetallePedido(
+                $conexion,
+                $orderNumber,
+                $productCode,
+                $cantidad,
+                $precio,
+                $linea
+            );
 
-            // Actualizar stock
-            $stmtStock->bindParam(':qty', $cantidad, PDO::PARAM_INT);
-            $stmtStock->bindParam(':code', $productCode, PDO::PARAM_STR);
-            $stmtStock->execute();
+            actualizarStock($conexion, $productCode, $cantidad);
+            $linea++;
         }
 
-        // 4. Registrar pago
-        $stmtPago = $conexion->prepare(
-            "INSERT INTO payments
-             (customerNumber, checkNumber, paymentDate, amount)
-             VALUES (:cliente, :check, CURDATE(), :total)"
-        );
-        $stmtPago->bindParam(':cliente', $cliente, PDO::PARAM_INT);
-        $stmtPago->bindParam(':check', $checkNumber, PDO::PARAM_STR);
-        $stmtPago->bindParam(':total', $total);
-        $stmtPago->execute();
+        registrarPago($conexion, $cliente, $checkNumber, $total);
 
         $conexion->commit();
         return true;
@@ -174,4 +202,31 @@ function realizarPedido($conexion, $pedido, $cliente, $checkNumber)
         throw $e;
     }
 }
-?>
+
+/* 7. Deplegable customerNumber */
+function deplegableCustomerNumber($conexion) {
+    $stmt = $conexion->prepare("SELECT customerNumber FROM customers");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function PedidosCliente($conexion, $customerNumber){
+    $stmt = $conexion->prepare("SELECT orderNumber, orderDate, status FROM orders WHERE customerNumber = :customerNumber");
+    $stmt->bindParam(':customerNumber', $customerNumber, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/* 8. Obtener detalles de un pedido con información del producto */
+function detallesPedido($conexion, $orderNumber){
+    $stmt = $conexion->prepare(
+        "SELECT od.orderLineNumber, p.productName, od.quantityOrdered, od.priceEach
+         FROM orderdetails od
+         INNER JOIN products p ON od.productCode = p.productCode
+         WHERE od.orderNumber = :orderNumber
+         ORDER BY od.orderLineNumber"
+    );
+    $stmt->bindParam(':orderNumber', $orderNumber, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}

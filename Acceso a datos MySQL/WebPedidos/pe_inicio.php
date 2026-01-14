@@ -20,6 +20,7 @@ if (!isset($_COOKIE['NOMBRE'])) {
     
     <ul>
         <li><a href="pe_altaped.php">Nuevo Pedido</a></li>
+        <li><a href="pe_consped.php">Consulta de Pedidos</a></li>
     </ul>
 </body>
 </html>
