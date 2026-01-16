@@ -237,3 +237,22 @@ function pedidosCliente($conexion, $customerNumber){
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+/*********************************************************************************************************/
+
+function productos($conexion){
+    $stmt = $conexion->prepare("SELECT productName, productCode FROM products");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function stockProducto($conexion, $productCode){
+    $stmt = $conexion->prepare(
+        "SELECT quantityInStock
+         FROM products
+         WHERE productCode = :productCode"
+    );
+    $stmt->bindParam(':productCode', $productCode, PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_COLUMN);
+}
