@@ -166,7 +166,7 @@ function registrarCliente($conn, $nif, $nombre, $apellido, $cp, $direccion, $ciu
 
 function generarClave($apellido)
 {
-    return strrev($apellido);
+    return strtolower(strrev($apellido));
 }
 function verificarCliente($conn, $nombre, $clave)
 {

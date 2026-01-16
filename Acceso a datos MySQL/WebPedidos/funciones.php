@@ -17,13 +17,15 @@ function conectarBD()
     }
 }
 
+/*********************************************************************************************************/
 /* Limpiar datos de entrada */
 function limpiar($dato)
 {
     return htmlspecialchars(stripslashes(trim($dato)));
 }
 
-/* Verificar cliente usando bindParam */
+/*********************************************************************************************************/
+/* Verificar cliente */
 function verificarCliente($conexion, $username, $password)
 {
     $stmt = $conexion->prepare(
@@ -38,6 +40,7 @@ function verificarCliente($conexion, $username, $password)
     return $stmt->fetch();
 }
 
+/*********************************************************************************************************/
 /* Obtener productos con stock > 0 */
 function obtenerProductosConStock($conexion)
 {
@@ -50,6 +53,7 @@ function obtenerProductosConStock($conexion)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+/*********************************************************************************************************/
 /* Obtener siguiente orderNumber */
 function obtenerSiguienteOrderNumber($conexion)
 {
@@ -59,6 +63,7 @@ function obtenerSiguienteOrderNumber($conexion)
     return $max + 1;
 }
 
+/*********************************************************************************************************/
 /* Calcular total del pedido según cantidad y precio real */
 function calcularTotal($conexion, $pedido)
 {
@@ -78,6 +83,7 @@ function calcularTotal($conexion, $pedido)
     return $total;
 }
 
+/*********************************************************************************************************/
 /* Valida el formato del número de cheque (AA99999) */
 function validarCheckNumber($checkNumber)
 {
@@ -85,6 +91,7 @@ function validarCheckNumber($checkNumber)
 }
 
 
+/*********************************************************************************************************/
 /* 1. Insertar pedido */
 function insertarPedido($conexion, $orderNumber, $cliente)
 {
@@ -98,6 +105,7 @@ function insertarPedido($conexion, $orderNumber, $cliente)
     $stmt->execute();
 }
 
+/*********************************************************************************************************/
 /* 2. Obtener datos del producto */
 function obtenerProducto($conexion, $productCode)
 {
@@ -112,6 +120,7 @@ function obtenerProducto($conexion, $productCode)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+/*********************************************************************************************************/
 /* 3. Insertar detalle del pedido */
 function insertarDetallePedido($conexion, $orderNumber, $productCode, $cantidad, $precio, $linea)
 {
@@ -128,6 +137,7 @@ function insertarDetallePedido($conexion, $orderNumber, $productCode, $cantidad,
     $stmt->execute();
 }
 
+/*********************************************************************************************************/
 /* 4. Actualizar stock */
 function actualizarStock($conexion, $productCode, $cantidad)
 {
@@ -141,6 +151,7 @@ function actualizarStock($conexion, $productCode, $cantidad)
     $stmt->execute();
 }
 
+/*********************************************************************************************************/
 /* 5. Registrar pago */
 function registrarPago($conexion, $cliente, $checkNumber, $total)
 {
@@ -155,6 +166,7 @@ function registrarPago($conexion, $cliente, $checkNumber, $total)
     $stmt->execute();
 }
 
+/*********************************************************************************************************/
 /* 6. Pedido completo */
 function realizarPedido($conexion, $pedido, $cliente, $checkNumber)
 {
@@ -179,14 +191,7 @@ function realizarPedido($conexion, $pedido, $cliente, $checkNumber)
             $precio = $producto['BuyPrice'];
             $total += $precio * $cantidad;
 
-            insertarDetallePedido(
-                $conexion,
-                $orderNumber,
-                $productCode,
-                $cantidad,
-                $precio,
-                $linea
-            );
+            insertarDetallePedido($conexion,$orderNumber,$productCode,$cantidad,$precio,$linea);
 
             actualizarStock($conexion, $productCode, $cantidad);
             $linea++;
@@ -203,16 +208,10 @@ function realizarPedido($conexion, $pedido, $cliente, $checkNumber)
     }
 }
 
+/*********************************************************************************************************/
 /* 7. Deplegable customerNumber */
 function deplegableCustomerNumber($conexion) {
     $stmt = $conexion->prepare("SELECT customerNumber FROM customers");
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function PedidosCliente($conexion, $customerNumber){
-    $stmt = $conexion->prepare("SELECT orderNumber, orderDate, status FROM orders WHERE customerNumber = :customerNumber");
-    $stmt->bindParam(':customerNumber', $customerNumber, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -221,12 +220,20 @@ function PedidosCliente($conexion, $customerNumber){
 function detallesPedido($conexion, $orderNumber){
     $stmt = $conexion->prepare(
         "SELECT od.orderLineNumber, p.productName, od.quantityOrdered, od.priceEach
-         FROM orderdetails od
-         INNER JOIN products p ON od.productCode = p.productCode
-         WHERE od.orderNumber = :orderNumber
+         FROM orderdetails od, products p
+         WHERE od.productCode = p.productCode AND od.orderNumber = :orderNumber 
          ORDER BY od.orderLineNumber"
     );
     $stmt->bindParam(':orderNumber', $orderNumber, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/*********************************************************************************************************/
+/* Devuelve los pedidos de un cliente */
+function pedidosCliente($conexion, $customerNumber){
+    $stmt = $conexion->prepare("SELECT orderNumber, orderDate, status FROM orders WHERE customerNumber = :customerNumber");
+    $stmt->bindParam(':customerNumber', $customerNumber, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

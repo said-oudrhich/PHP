@@ -12,26 +12,23 @@ $conexion = conectarBD();
 
 // Obtener carrito (array asociativo)
 function obtenerCarrito() {
-    return isset($_COOKIE['carrito']) && is_array($_COOKIE['carrito'])
-        ? $_COOKIE['carrito']
-        : [];
+    if (isset($_COOKIE['carrito'])) {
+        $carrito = unserialize($_COOKIE['carrito']);
+        return is_array($carrito) ? $carrito : [];
+    }
+    return [];
 }
 
-// Guardar carrito en cookies (array asociativo)
+// Guardar carrito en cookie única serializada
 function guardarCarrito($carrito) {
-    foreach ($carrito as $codigo => $cantidad) {
-        setcookie("carrito[$codigo]", $cantidad, time() + 86400, '/');
-        $_COOKIE['carrito'][$codigo] = $cantidad;
-    }
+    $valor = serialize($carrito);
+    setcookie("carrito", $valor, time() + 86400, '/');
+    $_COOKIE['carrito'] = $valor;
 }
 
 // Vaciar carrito
 function vaciarCarrito() {
-    if (isset($_COOKIE['carrito'])) {
-        foreach ($_COOKIE['carrito'] as $codigo => $valor) {
-            setcookie("carrito[$codigo]", '', time() - 3600, '/');
-        }
-    }
+    setcookie("carrito", '', time() - 3600, '/');
     unset($_COOKIE['carrito']);
 }
 
@@ -139,15 +136,18 @@ $productos = obtenerProductosConStock($conexion);
 
     <br>
 
-    <form method="post">
+    <form action="pe_altaped.php" method="post">
         <label>Nº Pago (AA99999):</label>
         <input type="text" name="checkNumber" placeholder="AB12345" required>
 
         <br><br>
 
         <input type="submit" name="confirmar" value="Confirmar Pedido">
+    </form><br>
+    <form action="pe_altaped.php" method="post">
         <input type="submit" name="vaciar" value="Vaciar Carrito">
     </form>
+    
 </fieldset>
 <?php endif; ?>
 
