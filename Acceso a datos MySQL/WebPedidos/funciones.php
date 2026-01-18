@@ -256,3 +256,57 @@ function stockProducto($conexion, $productCode){
     $stmt->execute();
     return $stmt->fetch(PDO::FETCH_COLUMN);
 }
+
+/*********************************************************************************************************/
+
+function desplegarProductLine($conexion){
+    $stmt = $conexion->prepare(
+        "SELECT productLine FROM productlines"
+    );
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/*********************************************************************************************************/
+
+function stockProductLine($conexion, $productLine){
+    $stmt = $conexion->prepare(
+        "SELECT SUM(p.quantityInStock) AS stock
+         FROM products p
+         WHERE p.productLine = :productLine"
+    );
+    $stmt->bindParam(':productLine', $productLine, PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/*********************************************************************************************************/
+
+function productosVendidoEntreFechas($conexion, $fecha_inicio, $fecha_fin){
+    $stmt = $conexion->prepare("
+        SELECT od.productCode, od.quantityOrdered
+        FROM orderdetails od, orders o
+        WHERE od.orderNumber = o.orderNumber
+        AND o.orderDate BETWEEN :fecha_inicio AND :fecha_fin;"
+    );
+    $stmt->bindParam(':fecha_inicio', $fecha_inicio, PDO::PARAM_STR);
+    $stmt->bindParam(':fecha_fin', $fecha_fin, PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/*********************************************************************************************************/
+
+function pagosCliente($conexion,$cliente,$fecha_inicio,$fecha_fin){
+    $stmt = $conexion->prepare("
+        SELECT p.checkNumber,p.paymentDate,p.amount
+        FROM payments p
+        WHERE p.customerNumber = :cliente
+        AND p.paymentDate BETWEEN :fecha_inicio AND :fecha_fin"
+    );
+    $stmt->bindParam(':cliente', $cliente, PDO::PARAM_INT);
+    $stmt->bindParam(':fecha_inicio', $fecha_inicio, PDO::PARAM_STR);
+    $stmt->bindParam(':fecha_fin', $fecha_fin, PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}

@@ -22,6 +22,9 @@ if (!isset($_COOKIE['NOMBRE'])) {
         <li><a href="pe_altaped.php">Nuevo Pedido</a></li>
         <li><a href="pe_consped.php">Consulta de Pedidos</a></li>
         <li><a href="pe_consprodstock.php">Consulta de Stock de Productos</a></li>
+        <li><a href="pe_constock.php">Consulta de Stock de linea de producto</a></li>
+        <li><a href="pe_topprod.php">Consulta de productos vendidos entre fechas</a></li>
+        <li><a href="pe_conspago.php">Consulta de pagos de un cliente entre fechas</a></li>
     </ul>
 </body>
 </html>
