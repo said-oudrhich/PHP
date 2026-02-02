@@ -29,41 +29,47 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock de productos</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <?php include("header.php"); ?>
 
 <div class="wp-container">
-    <a class="wp-link" href="pe_inicio.php">Volver al menú</a>
-
-    <h1>Consulta de stock de productos</h1>
+    <h1>Consulta de Stock de Productos</h1>
+    <p><a class="wp-link" href="pe_inicio.php">← Volver al menú</a></p>
 
     <?php if (isset($mensaje)) echo renderMessage($mensaje,'error'); ?>
 
-    <form method="post" action="pe_consprodstock.php">
-        <label for="producto">Producto:</label><br>
-
-        <select name="producto" id="producto" required>
-            <option value="">-- Seleccione --</option>
-            <?php foreach ($productos as $producto): ?>
-                <option value="<?= htmlspecialchars($producto['productCode']) ?>"
-                    <?= ($productoSeleccionado === $producto['productCode']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($producto['productName']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-
-        <br><br>
-        <button type="submit">Consultar</button>
-    </form>
+    <fieldset>
+        <legend>Seleccionar Producto</legend>
+        <form method="post" action="pe_consprodstock.php">
+            <div class="wp-form-group">
+                <label for="producto">Producto:</label>
+                <select name="producto" id="producto" required>
+                    <option value="">-- Seleccione --</option>
+                    <?php foreach ($productos as $producto): ?>
+                        <option value="<?= htmlspecialchars($producto['productCode']) ?>"
+                            <?= ($productoSeleccionado === $producto['productCode']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($producto['productName']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <button class="wp-button wp-button-primary" type="submit">Consultar Stock</button>
+        </form>
+    </fieldset>
 
     <?php if ($productoSeleccionado): ?>
-        <h2>Resultado</h2>
-        <p>
-            Producto: <strong><?= htmlspecialchars($productoSeleccionado) ?></strong><br>
-            Stock disponible: <strong><?= htmlspecialchars($stock) ?></strong>
-        </p>
+        <fieldset class="mt-16">
+            <legend>Resultado de la Consulta</legend>
+            <p>
+                <strong>Producto:</strong> <?= htmlspecialchars($productoSeleccionado) ?><br>
+                <strong>Stock disponible:</strong> <span style="color: #0b67a3; font-weight: 600;">
+                    <?= htmlspecialchars($stock ?? 'No disponible') ?>
+                </span> unidades
+            </p>
+        </fieldset>
     <?php endif; ?>
 
 </div>

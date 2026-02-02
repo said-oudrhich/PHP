@@ -29,12 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <style>
-        .wp-container{max-width:1000px;margin:18px auto;font-family:Arial,Helvetica,sans-serif}
-        .alert{padding:10px 14px;border-radius:4px;margin:10px 0}
-        .alert-info{background:#eef6ff;color:#0b4f8a;border:1px solid #cde5ff}
-        .alert-error{background:#fdecea;color:#611a15;border:1px solid #f5c6cb}
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="wp-container">
@@ -50,13 +45,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <?php if (!empty($mensaje)) echo renderMessage($mensaje, 'error'); ?>
 
-        <form method="post">
-            <label>Username:</label>
-            <input type="text" name="username" required><br><br>
-            <label>Password:</label>
-            <input type="password" name="password" required><br><br>
-            <input type="submit" value="Entrar">
-        </form>
+        <fieldset>
+            <legend>Acceder al Sistema</legend>
+            <form method="post">
+                <div class="wp-form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+
+                <div class="wp-form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <button class="wp-button wp-button-primary wp-button-full" type="submit">Entrar</button>
+            </form>
+        </fieldset>
     </div>
 </body>
 </html>

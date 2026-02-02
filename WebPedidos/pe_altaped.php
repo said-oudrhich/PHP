@@ -40,13 +40,25 @@ if (isset($_POST['añadir'])) {
     $cantidad = (int)$_POST['quantity'];
 
     if ($cantidad > 0) {
-        if (isset($carrito[$productCode])) {
-            $carrito[$productCode] += $cantidad;
+        // Obtener el stock máximo disponible del producto
+        $producto = obtenerProducto($conexion, $productCode);
+        $stockDisponible = $producto['quantityInStock'];
+        
+        // Calcular cantidad total que habría en el carrito
+        $cantidadActual = isset($carrito[$productCode]) ? $carrito[$productCode] : 0;
+        $cantidadTotal = $cantidadActual + $cantidad;
+
+        if ($cantidadTotal > $stockDisponible) {
+            $mensaje = "Error: No hay suficiente stock. Máximo disponible: " . ($stockDisponible - $cantidadActual) . " unidades.";
         } else {
-            $carrito[$productCode] = $cantidad;
+            if (isset($carrito[$productCode])) {
+                $carrito[$productCode] += $cantidad;
+            } else {
+                $carrito[$productCode] = $cantidad;
+            }
+            guardarCarrito($carrito);
+            $mensaje = "Producto añadido al carrito.";
         }
-        guardarCarrito($carrito);
-        $mensaje = "Producto añadido al carrito.";
     }
 }
 
@@ -65,6 +77,8 @@ if (isset($_POST['confirmar'])) {
         $mensaje = "Error: El carrito está vacío.";
     } elseif (!validarCheckNumber($checkNumber)) {
         $mensaje = "Error: Formato incorrecto (AA99999).";
+    } elseif (!verificarCheckNumberUnico($conexion, $customerNumber, $checkNumber)) {
+        $mensaje = "Error: Este número de cheque ya existe para su cuenta. Use otro número.";
     } else {
         try {
             realizarPedido($conexion, $carrito, $customerNumber, $checkNumber);
@@ -85,69 +99,94 @@ $productos = obtenerProductosConStock($conexion);
     <meta charset="UTF-8">
     <title>Alta de Pedido</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <?php include("header.php"); ?>
 
 <div class="wp-container">
-    <h2>Realizar Pedido - Cliente: <?= htmlspecialchars($customerNumber) ?></h2>
-    <p><a class="wp-link" href="pe_inicio.php">Volver</a></p>
+    <h1>Realizar Pedido</h1>
+    <p><strong>Cliente:</strong> <?= htmlspecialchars($customerNumber) ?></p>
+    <p><a class="wp-link" href="pe_inicio.php">← Volver</a></p>
 
     <?php if (!empty($mensaje)) echo renderMessage($mensaje, strpos($mensaje,'Error')===0 ? 'error' : 'success'); ?>
 
     <fieldset>
-    <legend>Añadir Productos</legend>
-    <form method="post">
-        <label>Producto:</label>
-        <select name="productCode" required>
-            <?php foreach ($productos as $prod): ?>
-                <option value="<?= htmlspecialchars($prod['productCode']) ?>">
-                    <?= htmlspecialchars($prod['productName']) ?> (<?= htmlspecialchars(number_format($prod['buyPrice'],2)) ?> €)
-                </option>
-            <?php endforeach; ?>
-        </select>
+        <legend>Añadir Productos</legend>
+        <form method="post">
+            <div class="wp-form-group">
+                <label for="productCode">Producto:</label>
+                <select id="productCode" name="productCode" required>
+                    <?php foreach ($productos as $prod): ?>
+                        <option value="<?= htmlspecialchars($prod['productCode']) ?>">
+                            <?= htmlspecialchars($prod['productName']) ?> (<?= htmlspecialchars(number_format($prod['buyPrice'],2)) ?> €)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-        <label>Cantidad:</label>
-        <input type="number" name="quantity" value="1" min="1" required>
+            <div class="wp-form-group">
+                <label for="quantity">Cantidad:</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" required>
+            </div>
 
-        <input type="submit" name="añadir" value="Añadir">
-    </form>
-</fieldset>
-
-<br>
+            <button class="wp-button wp-button-primary" type="submit" name="añadir">Añadir al Carrito</button>
+        </form>
+    </fieldset>
 
     <?php if (!empty($carrito)): ?>
-    <fieldset>
-        <legend>Carrito</legend>
+    <fieldset class="mt-16">
+        <legend>Carrito de Compra</legend>
+
+        <?php 
+            // Obtener detalles del carrito
+            $detallesCarrito = obtenerDetallesCarrito($conexion, $carrito);
+            $carritoDetalles = $detallesCarrito['items'];
+            $totalCarrito = $detallesCarrito['total'];
+        ?>
 
         <table class="wp-table">
-            <tr>
-                <th>Código</th>
-                <th>Cantidad</th>
-            </tr>
-            <?php foreach ($carrito as $code => $qty): ?>
-            <tr>
-                <td><?= htmlspecialchars($code) ?></td>
-                <td><?= (int)$qty ?></td>
-            </tr>
-            <?php endforeach; ?>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th class="text-right">Cantidad</th>
+                    <th class="text-right">Precio Unit.</th>
+                    <th class="text-right">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($carritoDetalles as $item): ?>
+                <tr>
+                    <td><strong><?= htmlspecialchars($item['codigo']) ?></strong></td>
+                    <td><?= htmlspecialchars($item['nombre']) ?></td>
+                    <td class="text-right"><?= (int)$item['cantidad'] ?></td>
+                    <td class="text-right"><?= number_format($item['precio'], 2) ?> €</td>
+                    <td class="text-right"><strong><?= number_format($item['subtotal'], 2) ?> €</strong></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr style="background: #f0f0f0; font-weight: 600;">
+                    <td colspan="4" class="text-right"><strong>TOTAL DEL PEDIDO:</strong></td>
+                    <td class="text-right" style="color: #0b67a3; font-size: 16px;"><?= number_format($totalCarrito, 2) ?> €</td>
+                </tr>
+            </tfoot>
         </table>
 
-        <br>
-
-        <form action="pe_altaped.php" method="post">
-            <label>Nº Pago (AA99999):</label>
-            <input type="text" name="checkNumber" placeholder="AB12345" required>
-
-            <br><br>
-
-            <input type="submit" name="confirmar" value="Confirmar Pedido">
-        </form><br>
-        <form action="pe_altaped.php" method="post">
-            <input type="submit" name="vaciar" value="Vaciar Carrito">
-        </form>
-        
+        <div class="wp-button-group mt-16">
+            <form action="pe_altaped.php" method="post" style="flex: 1;">
+                <div class="wp-form-group">
+                    <label for="checkNumber">Número de Pago (AA99999):</label>
+                    <input type="text" id="checkNumber" name="checkNumber" placeholder="AB12345" required>
+                </div>
+                <button class="wp-button wp-button-primary wp-button-full" type="submit" name="confirmar">Confirmar Pedido</button>
+            </form>
+            <form action="pe_altaped.php" method="post" style="flex: 1;">
+                <button class="wp-button wp-button-secondary wp-button-full" type="submit" name="vaciar">Vaciar Carrito</button>
+            </form>
+        </div>
     </fieldset>
     <?php endif; ?>
 </div>

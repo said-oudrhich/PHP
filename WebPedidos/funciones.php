@@ -2,10 +2,10 @@
 /* Conexión a BD pedidos - PDO */
 function conectarBD()
 {
-    $servername = "fdb1032.awardspace.net";
-    $username = "4717047_pedidos";
-    $password = "1:cG;K}r8i:t^J;v";
-    $dbname = "4717047_pedidos";
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "pedidos";
 
     try {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
@@ -178,6 +178,22 @@ function registrarPago($conexion, $cliente, $checkNumber, $total)
 }
 
 /*********************************************************************************************************/
+
+/* Verificar si un número de cheque ya existe para un cliente */
+function verificarCheckNumberUnico($conexion, $cliente, $checkNumber)
+{
+    $stmt = $conexion->prepare(
+        "SELECT COUNT(*) FROM payments 
+         WHERE customerNumber = :cliente 
+         AND checkNumber = :check"
+    );
+    $stmt->bindParam(':cliente', $cliente, PDO::PARAM_INT);
+    $stmt->bindParam(':check', $checkNumber, PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetchColumn() == 0; // Retorna true si es único
+}
+
+/*********************************************************************************************************/
 /* 6. Pedido completo */
 function realizarPedido($conexion, $pedido, $cliente, $checkNumber)
 {
@@ -320,4 +336,68 @@ function pagosCliente($conexion,$cliente,$fecha_inicio,$fecha_fin){
     $stmt->bindParam(':fecha_fin', $fecha_fin, PDO::PARAM_STR);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/*********************************************************************************************************/
+
+/* Obtener detalles del carrito con información completa */
+function obtenerDetallesCarrito($conexion, $carrito){
+    $carritoDetalles = [];
+    $totalCarrito = 0;
+    
+    foreach ($carrito as $code => $qty) {
+        $producto = obtenerProducto($conexion, $code);
+        $precio = $producto['buyPrice'];
+        $subtotal = $precio * $qty;
+        $totalCarrito += $subtotal;
+        
+        // Obtener nombre del producto
+        $stmt = $conexion->prepare("SELECT productName FROM products WHERE productCode = :code");
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
+        $stmt->execute();
+        $nombreProducto = $stmt->fetchColumn();
+        
+        $carritoDetalles[] = [
+            'codigo' => $code,
+            'nombre' => $nombreProducto,
+            'cantidad' => $qty,
+            'precio' => $precio,
+            'subtotal' => $subtotal
+        ];
+    }
+    
+    return [
+        'items' => $carritoDetalles,
+        'total' => $totalCarrito
+    ];
+}
+
+/*********************************************************************************************************/
+
+/* Calcular total de un array de items con campo 'amount' */
+function calcularTotalItems($items, $campoMonto = 'amount') {
+    $total = 0;
+    foreach ($items as $item) {
+        if (isset($item[$campoMonto])) {
+            $total += $item[$campoMonto];
+        }
+    }
+    return $total;
+}
+
+/*********************************************************************************************************/
+
+/* Renderizar un select/dropdown con opciones */
+function renderSelectClientes($conexion, $clienteSeleccionado = null, $idSelect = 'cliente', $nombreSelect = 'cliente') {
+    $clientes = deplegableCustomerNumber($conexion);
+    $html = "<select name=\"$nombreSelect\" id=\"$idSelect\" required>\n";
+    $html .= "    <option value=\"\">-- Seleccione --</option>\n";
+    
+    foreach ($clientes as $c) {
+        $selected = ($clienteSeleccionado == $c['customerNumber']) ? 'selected' : '';
+        $html .= "    <option value=\"" . htmlspecialchars($c['customerNumber']) . "\" $selected>" . htmlspecialchars($c['customerNumber']) . "</option>\n";
+    }
+    
+    $html .= "</select>\n";
+    return $html;
 }

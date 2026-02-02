@@ -40,6 +40,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Pedidos</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -47,58 +48,61 @@ try {
 
 <div class="wp-container">
     <h1>Consulta de Pedidos por Cliente</h1>
-    <p><a class="wp-link" href="pe_inicio.php">Volver</a></p>
+    <p><a class="wp-link" href="pe_inicio.php">← Volver</a></p>
 
     <?php if ($error) echo renderMessage($error,'error'); ?>
 
-    <form method="post">
-        <label for="cliente">Cliente:</label>
-        <select name="cliente" id="cliente" required>
-            <option value="">-- Seleccione --</option>
-            <?php foreach ($clientes as $c): ?>
-                <option value="<?= htmlspecialchars($c['customerNumber']) ?>"
-                    <?= ($clienteSeleccionado == $c['customerNumber']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($c['customerNumber']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-        <button>Consultar</button>
-    </form>
+    <fieldset>
+        <legend>Seleccionar Cliente</legend>
+        <form method="post">
+            <div class="wp-form-group">
+                <label for="cliente">Cliente:</label>
+                <?php echo renderSelectClientes($conexion, $clienteSeleccionado); ?>
+            </div>
+            <button class="wp-button wp-button-primary" type="submit">Consultar</button>
+        </form>
+    </fieldset>
 
     <?php if ($clienteSeleccionado): ?>
 
         <?php if (!empty($pedidos)): ?>
-            <h2>Pedidos del cliente <?= htmlspecialchars($clienteSeleccionado) ?></h2>
+            <h2 class="mt-16">Pedidos del cliente <?= htmlspecialchars($clienteSeleccionado) ?></h2>
 
             <?php foreach ($pedidos as $pedido): ?>
-                <h3>
-                    Pedido #<?= htmlspecialchars($pedido['orderNumber']) ?> |
-                    Fecha <?= htmlspecialchars($pedido['orderDate']) ?> |
-                    Estado <?= htmlspecialchars($pedido['status']) ?>
-                </h3>
+                <fieldset class="mt-16">
+                    <legend>
+                        Pedido #<?= htmlspecialchars($pedido['orderNumber']) ?> | 
+                        Fecha: <?= htmlspecialchars($pedido['orderDate']) ?> | 
+                        Estado: <?= htmlspecialchars($pedido['status']) ?>
+                    </legend>
 
-                <?php $detalles = $detallesPorPedido[$pedido['orderNumber']] ?? []; ?>
+                    <?php $detalles = $detallesPorPedido[$pedido['orderNumber']] ?? []; ?>
 
-                <?php if (!empty($detalles)): ?>
-                    <table class="wp-table">
-                        <tr>
-                            <th>Línea</th>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                        </tr>
-                        <?php foreach ($detalles as $d): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($d['orderLineNumber']) ?></td>
-                                <td><?= htmlspecialchars($d['productName']) ?></td>
-                                <td><?= htmlspecialchars($d['quantityOrdered']) ?></td>
-                                <td><?= number_format($d['priceEach'], 2) ?> €</td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </table>
-                <?php else: ?>
-                    <p><em>Sin líneas de pedido</em></p>
-                <?php endif; ?>
+                    <?php if (!empty($detalles)): ?>
+                        <table class="wp-table">
+                            <thead>
+                                <tr>
+                                    <th>Línea</th>
+                                    <th>Producto</th>
+                                    <th class="text-right">Cantidad</th>
+                                    <th class="text-right">Precio Unitario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($detalles as $d): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($d['orderLineNumber']) ?></td>
+                                        <td><?= htmlspecialchars($d['productName']) ?></td>
+                                        <td class="text-right"><?= htmlspecialchars($d['quantityOrdered']) ?></td>
+                                        <td class="text-right"><?= number_format($d['priceEach'], 2) ?> €</td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <p class="text-muted"><em>Sin líneas de pedido</em></p>
+                    <?php endif; ?>
+                </fieldset>
 
             <?php endforeach; ?>
 

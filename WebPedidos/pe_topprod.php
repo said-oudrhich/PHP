@@ -26,47 +26,59 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Productos vendidos entre fechas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <?php include("header.php"); ?>
 
 <div class="wp-container">
-    <a class="wp-link" href="pe_inicio.php">Volver al menú</a>
-
-    <h1>Productos vendidos entre fechas</h1>
+    <h1>Productos Vendidos entre Fechas</h1>
+    <p><a class="wp-link" href="pe_inicio.php">← Volver al menú</a></p>
 
     <?php if (isset($mensaje)): echo renderMessage($mensaje,'error'); endif; ?>
 
-    <form method="POST" action="">
-        <label>Fecha inicio:</label>
-        <input type="date" name="inicio" required>
+    <fieldset>
+        <legend>Seleccionar Rango de Fechas</legend>
+        <form method="POST" action="">
+            <div class="wp-form-group">
+                <label for="inicio">Fecha Inicio:</label>
+                <input type="date" id="inicio" name="inicio" required>
+            </div>
 
-        <label>Fecha fin:</label>
-        <input type="date" name="fin" required>
+            <div class="wp-form-group">
+                <label for="fin">Fecha Fin:</label>
+                <input type="date" id="fin" name="fin" required>
+            </div>
 
-        <button type="submit">Buscar</button>
-    </form>
+            <button class="wp-button wp-button-primary" type="submit">Buscar Productos</button>
+        </form>
+    </fieldset>
 
     <?php if (isset($productos) && count($productos) > 0): ?>
-        <h2>Resultado</h2>
-
-        <table class="wp-table">
-            <tr>
-                <th>Product Code</th>
-                <th>Cantidad Vendida</th>
-            </tr>
-
-            <?php foreach ($productos as $producto): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($producto['productCode']); ?></td>
-                    <td><?php echo htmlspecialchars($producto['quantityOrdered']); ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
+        <fieldset class="mt-16">
+            <legend>Resultados de la Búsqueda</legend>
+            <table class="wp-table">
+                <thead>
+                    <tr>
+                        <th>Código Producto</th>
+                        <th class="text-right">Cantidad Vendida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($productos as $producto): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($producto['productCode']); ?></td>
+                            <td class="text-right"><?php echo htmlspecialchars($producto['quantityOrdered']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </fieldset>
 
     <?php elseif (isset($productos)): ?>
-        <p>No hay resultados para esas fechas.</p>
+        <?php echo renderMessage('No hay resultados para esas fechas.','info'); ?>
     <?php endif; ?>
 </div>
 
